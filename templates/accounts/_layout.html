@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block prefooter %}{% endblock %}
+{% block content %}
+<div class="bg-brand-mist">
+  <div class="container-site py-8">
+    <p class="eyebrow">My account</p>
+    <h1 class="mt-1 text-3xl">{% block account_title %}Hello, {{ user.first_name|default:user.email }}{% endblock %}</h1>
+  </div>
+</div>
+<div class="container-site grid gap-8 py-10 lg:grid-cols-12">
+  <nav class="lg:col-span-3" aria-label="Account">
+    <ul class="flex gap-1 overflow-x-auto lg:flex-col">
+      {% with s=section %}
+      <li><a href="{% url 'account_dashboard' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'dashboard' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "house" "h-4 w-4" %} Overview</a></li>
+      <li><a href="{% url 'account_donations' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'donations' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "file-text" "h-4 w-4" %} Donations &amp; receipts</a></li>
+      <li><a href="{% url 'account_monthly' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'monthly' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "calendar" "h-4 w-4" %} Monthly giving</a></li>
+      <li><a href="{% url 'account_ecards' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'ecards' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "mail" "h-4 w-4" %} Tributes &amp; e-cards</a></li>
+      <li><a href="{% url 'account_gift_orders' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'gifts' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "gift" "h-4 w-4" %} Gift orders</a></li>
+      <li><a href="{% url 'account_fundraisers' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'fundraisers' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "megaphone" "h-4 w-4" %} My fundraisers</a></li>
+      <li><a href="{% url 'account_profile' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'profile' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "user" "h-4 w-4" %} Profile</a></li>
+      <li><a href="{% url 'account_email_prefs' %}" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold no-underline {% if s == 'email' %}bg-brand text-white{% else %}text-brand-dark hover:bg-brand-mist{% endif %}">{% icon "mail" "h-4 w-4" %} Email preferences</a></li>
+      {% endwith %}
+      <li class="lg:mt-4"><form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button type="submit" class="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 font-semibold text-muted hover:bg-brand-mist">{% icon "log-out" "h-4 w-4" %} Sign out</button></form></li>
+    </ul>
+  </nav>
+  <div class="min-w-0 lg:col-span-9">{% block account_content %}{% endblock %}</div>
+</div>
+{% endblock %}

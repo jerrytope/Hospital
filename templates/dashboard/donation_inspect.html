@@ -1,0 +1,30 @@
+{% extends "wagtailadmin/generic/inspect.html" %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+{% with d=object %}
+<div class="hm-grid">
+  <div class="hm-card"><h3>Amount</h3><div class="v">{{ d.display_amount }}</div><span class="hm-muted">{{ d.get_frequency_display }}</span></div>
+  <div class="hm-card"><h3>Status</h3><div class="v">{{ d.get_status_display }}</div><span class="hm-muted">{{ d.get_provider_display }}</span></div>
+  <div class="hm-card"><h3>Receipt</h3><div class="v">{% if d.receipt %}{{ d.receipt.display_number }}{% else %}-{% endif %}</div><span class="hm-muted">{% if d.receipt_sent_at %}sent {{ d.receipt_sent_at|date:"j M Y H:i" }}{% else %}not sent{% endif %}</span></div>
+</div>
+{% if d.status == "succeeded" %}
+<div class="hm-inline">
+  <form method="post" action="{% url 'dashboard_donation_action' d.pk %}">{% csrf_token %}<button class="button button-secondary" name="action" value="resend_receipt">Resend receipt</button></form>
+  <form method="post" action="{% url 'dashboard_donation_action' d.pk %}" onsubmit="return confirm('Refund {{ d.display_amount }} to {{ d.email }}?')">{% csrf_token %}<button class="button no" name="action" value="refund">{% if d.provider == "bank" %}Mark refunded{% else %}Refund{% endif %}</button></form>
+</div>
+{% endif %}
+<table class="hm-table"><tbody>
+<tr><th>Reference</th><td>{{ d.reference }}</td></tr>
+<tr><th>Provider reference</th><td>{{ d.provider_reference|default:"-" }}</td></tr>
+<tr><th>Donor</th><td>{{ d.donor_name }} · {{ d.email }}{% if d.phone %} · {{ d.phone }}{% endif %}{% if d.user %}<br><span class="hm-muted">Account: {{ d.user.email }}</span>{% endif %}</td></tr>
+<tr><th>Appeal</th><td>{{ d.appeal_code|default:"-" }}{% if d.appeal %} ({{ d.appeal.name }}){% endif %}</td></tr>
+<tr><th>Emergency</th><td>{{ d.emergency|default:"-" }}</td></tr>
+<tr><th>Fundraiser</th><td>{{ d.fundraiser|default:"-" }}</td></tr>
+<tr><th>Monthly gift</th><td>{{ d.recurring_gift|default:"-" }}</td></tr>
+<tr><th>Source page</th><td>{{ d.source_url|default:"-" }}</td></tr>
+<tr><th>Created / paid</th><td>{{ d.created_at|date:"j M Y H:i" }} / {{ d.paid_at|date:"j M Y H:i"|default:"-" }}</td></tr>
+<tr><th>E-cards</th><td>{% for c in d.ecards.all %}{{ c }}<br>{% empty %}-{% endfor %}</td></tr>
+<tr><th>Notes</th><td>{{ d.admin_notes|linebreaksbr|default:"-" }}</td></tr>
+</tbody></table>
+{% endwith %}
+{% endblock %}

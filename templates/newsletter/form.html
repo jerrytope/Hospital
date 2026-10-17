@@ -1,0 +1,35 @@
+{% load wagtailcore_tags %}
+<form id="newsletter-{{ form_id }}" method="post" action="{% url 'newsletter:subscribe' %}" hx-post="{% url 'newsletter:subscribe' %}" hx-swap="outerHTML" class="relative">
+  {% csrf_token %}
+  <input type="hidden" name="source_page" value="{{ request.path }}">
+  <div class="honeypot" aria-hidden="true">
+    <label for="nl-website-{{ form_id }}">Leave this field empty</label>
+    <input type="text" name="website" id="nl-website-{{ form_id }}" tabindex="-1" autocomplete="off">
+  </div>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div>
+      <label class="field-label" for="nl-first-{{ form_id }}">First name <span class="text-accent">*</span></label>
+      <input class="field" id="nl-first-{{ form_id }}" name="first_name" required autocomplete="given-name" value="{{ nl_form.first_name.value|default:'' }}">
+      {% if nl_form.first_name.errors %}<p class="field-error">{{ nl_form.first_name.errors.0 }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="field-label" for="nl-last-{{ form_id }}">Last name <span class="text-accent">*</span></label>
+      <input class="field" id="nl-last-{{ form_id }}" name="last_name" required autocomplete="family-name" value="{{ nl_form.last_name.value|default:'' }}">
+      {% if nl_form.last_name.errors %}<p class="field-error">{{ nl_form.last_name.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="sm:col-span-2 lg:col-span-1">
+      <label class="field-label" for="nl-email-{{ form_id }}">Email <span class="text-accent">*</span></label>
+      <input class="field" id="nl-email-{{ form_id }}" name="email" type="email" required autocomplete="email" value="{{ nl_form.email.value|default:'' }}">
+      {% if nl_form.email.errors %}<p class="field-error">{{ nl_form.email.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+  {% if TURNSTILE_SITE_KEY %}<div class="cf-turnstile mt-4" data-sitekey="{{ TURNSTILE_SITE_KEY }}"></div>{% endif %}
+  {% if nl_form.non_field_errors %}<p class="field-error">{{ nl_form.non_field_errors.0 }}</p>{% endif %}
+  <div class="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="text-sm text-muted [&_a]:underline">
+      {% with org=settings.core.OrganisationSettings %}{{ org.newsletter_consent_text|richtext }}
+      {% if org.privacy_page %}<a href="{% pageurl org.privacy_page %}" class="text-brand underline">Privacy policy</a>{% endif %}{% endwith %}
+    </div>
+    <button type="submit" class="btn-primary shrink-0">Get email updates</button>
+  </div>
+</form>

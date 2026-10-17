@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" with eyebrow=page.eyebrow|default:"Where We Work" %}
+
+{% if page.featured_emergency %}
+<section class="relative z-10 -mt-10">
+  <div class="container-site">
+    <a href="{% pageurl page.featured_emergency %}" class="group flex flex-col gap-4 rounded-lg bg-white p-6 shadow-card no-underline md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="card-label text-accent">Emergency response</p>
+        <p class="card-title group-hover:text-brand">{{ page.featured_emergency.title }}</p>
+        {% if page.featured_emergency.card_summary %}<p class="text-muted">{{ page.featured_emergency.card_summary }}</p>{% endif %}
+      </div>
+      <span class="btn-outline shrink-0">Read more</span>
+    </a>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container-site grid gap-10 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      {% if page.work_started %}<p class="eyebrow">Working here since {{ page.work_started }}</p>{% endif %}
+      <div class="prose-site mt-2">{{ page.intro|richtext }}</div>
+      <a href="{% donate_href page.appeal_code|default:'COUNTRY' %}" data-donate class="btn-donate mt-6">Donate</a>
+    </div>
+    {% if page.population or page.life_expectancy or page.infant_mortality %}
+      <aside class="rounded-lg bg-brand-mist p-6">
+        <div class="flex items-center gap-2 text-brand">{% icon "map-pin" "h-6 w-6" %}<span class="font-display font-bold text-brand-dark">{{ page.title }} at a glance</span></div>
+        <dl class="mt-4 space-y-4">
+          {% if page.population %}<div><dt class="text-sm uppercase tracking-widest text-muted">Population</dt><dd class="font-display text-2xl font-extrabold text-brand-dark">{{ page.population }}</dd></div>{% endif %}
+          {% if page.life_expectancy %}<div><dt class="text-sm uppercase tracking-widest text-muted">Life expectancy</dt><dd class="font-display text-2xl font-extrabold text-brand-dark">{{ page.life_expectancy }}</dd></div>{% endif %}
+          {% if page.infant_mortality %}<div><dt class="text-sm uppercase tracking-widest text-muted">Infant mortality rate</dt><dd class="font-display text-2xl font-extrabold text-brand-dark">{{ page.infant_mortality }}</dd></div>{% endif %}
+        </dl>
+      </aside>
+    {% endif %}
+  </div>
+</section>
+
+{% if page.award_heading %}
+<section class="container-site pb-10">
+  <div class="flex flex-col gap-4 rounded-lg border-l-8 border-warn bg-warn/10 p-6 md:flex-row md:items-center">
+    <span class="text-warn">{% icon "graduation-cap" "h-10 w-10" %}</span>
+    <div><h2 class="text-xl">{{ page.award_heading }}</h2><div class="prose-site text-base">{{ page.award_text|richtext }}</div></div>
+  </div>
+</section>
+{% endif %}
+
+{% with challenges=page.challenges.all %}
+{% if challenges %}
+<section class="section bg-brand-mist">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.challenges_heading }}</h2>
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      {% for c in challenges %}
+        <div class="rounded-lg bg-white p-6 text-center shadow-card">
+          <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-accent">{% icon c.icon "h-8 w-8" %}</span>
+          <h3 class="mt-4 text-xl">{{ c.title }}</h3>
+          {% if c.text %}<p class="mt-2 text-muted">{{ c.text }}</p>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{% with sectors=page.response_sectors.all %}
+{% if sectors or page.response_intro %}
+<section class="section">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.response_heading }}</h2>
+    {% if page.response_intro %}<div class="prose-site mt-4 max-w-3xl">{{ page.response_intro|richtext }}</div>{% endif %}
+    <div class="mt-10 space-y-10">
+      {% for s in sectors %}
+        <div class="grid gap-4 md:grid-cols-12">
+          <div class="flex items-center gap-3 md:col-span-4 md:items-start">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-mist text-brand">{% icon s.icon "h-6 w-6" %}</span>
+            <h3 class="text-xl">{{ s.title }}</h3>
+          </div>
+          <div class="prose-site md:col-span-8">{{ s.text|richtext }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{% with stats=page.impact_stats.all %}
+{% if stats %}
+<section class="bg-brand-dark py-12 md:py-16">
+  <div class="container-site">
+    <h2 class="text-center text-3xl text-white md:text-4xl">Our Impact{% if page.impact_year %} in {{ page.impact_year }}{% endif %}</h2>
+    <div class="mt-10 grid gap-8 text-center sm:grid-cols-2 lg:grid-cols-4">
+      {% for s in stats %}<div><p class="font-display text-4xl font-extrabold text-brand-light md:text-5xl" data-count="{{ s.value }}">{{ s.value }}</p><p class="mt-2 font-semibold text-white/85">{{ s.label }}</p></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{% for block in page.body %}{% include_block block %}{% endfor %}
+{% include "includes/resource_list.html" with items=resources %}
+{% include "includes/sitrep_list.html" with items=sitreps %}
+{% stories_url location=page.slug as explore %}
+{% with heading="Read more on "|add:page.title %}{% include "includes/related_stories.html" with stories=related_stories explore_url=explore %}{% endwith %}
+{% include "includes/donate_box.html" with heading="Your gift can save lives" appeal=page.appeal_code|default:"COUNTRY" %}
+
+<nav class="border-t border-line" aria-label="Other countries">
+  <div class="container-site flex flex-col gap-6 py-8 md:flex-row md:items-center md:justify-between">
+    {% if prev_country %}<a href="{% pageurl prev_country %}" class="link-arrow">{% icon "chevron-left" "h-4 w-4" %} {{ prev_country.title }}</a>{% else %}<span></span>{% endif %}
+    {% if other_countries %}
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="text-sm text-muted">Other countries:</span>
+        {% for c in other_countries %}<a href="{% pageurl c %}" class="badge">{{ c.title }}</a>{% endfor %}
+        {% with www=settings.core.OrganisationSettings.where_we_work_page %}{% if www %}<a href="{% pageurl www %}" class="badge">View more</a>{% endif %}{% endwith %}
+      </div>
+    {% endif %}
+    {% if next_country %}<a href="{% pageurl next_country %}" class="link-arrow">{{ next_country.title }} {% icon "chevron-right" "h-4 w-4" %}</a>{% endif %}
+  </div>
+</nav>
+{% endblock %}

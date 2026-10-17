@@ -1,0 +1,9 @@
+Dear {{ card.recipient_name }},
+
+{{ card.sender_name }} has made a gift to {{ org.name }} {% if card.card_type == "memory" %}in memory of {{ card.honoree_name }}{% elif card.card_type == "honor" %}in honour of {{ card.honoree_name|default:"you" }}{% else %}on your behalf{% endif %}.
+{% if card.gift_order %}{% for line in card.gift_order.lines.all %}
+- {{ line.quantity }} x {{ line.title }}{% endfor %}
+{% endif %}{% if card.message %}
+"{{ card.message }}"
+{% endif %}
+Learn about our work: {{ SITE_URL }}

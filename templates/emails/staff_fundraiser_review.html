@@ -1,0 +1,5 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>A fundraiser is waiting for approval: <strong>{{ fundraiser.title }}</strong> by {{ fundraiser.owner.email }} (goal {{ fundraiser.display_goal }}).</p>
+<p><a href="{{ admin_url }}" style="color:#13599E">Review it in the admin</a></p>
+{% endblock %}

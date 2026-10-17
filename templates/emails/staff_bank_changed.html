@@ -1,0 +1,6 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p><strong>Security notice.</strong> Bank account details shown on the website were <strong>{{ action }}</strong>.</p>
+<p>Account: {{ account_label }}<br>Changed by: {{ staff_email }}<br>When: {{ when|date:"j F Y, H:i" }}</p>
+<p>If you did not expect this change, sign in to the admin straight away, check the bank accounts, and change your password.</p>
+{% endblock %}

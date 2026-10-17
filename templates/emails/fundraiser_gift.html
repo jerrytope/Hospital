@@ -1,0 +1,8 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>Good news, {{ fundraiser.owner.first_name|default:"fundraiser" }}!</p>
+<p><strong>{{ donation.public_name }}</strong> just gave <strong>{{ donation.display_amount }}</strong> to your fundraiser &ldquo;{{ fundraiser.title }}&rdquo;.</p>
+{% if donation.public_message %}<blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #22A6D8;background:#EEF4FA">{{ donation.public_message }}</blockquote>{% endif %}
+<p>You have now raised <strong>{{ fundraiser.display_raised }}</strong> of your {{ fundraiser.display_goal }} goal.</p>
+<p><a href="{{ SITE_URL }}/account/fundraisers/" style="color:#13599E">Manage your fundraiser</a></p>
+{% endblock %}

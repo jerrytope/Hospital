@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}Tell us about your bank transfer{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-site grid gap-10 lg:grid-cols-12">
+    <div class="lg:col-span-5">
+      <p class="eyebrow">Bank transfer</p>
+      <h1 class="mt-1 text-3xl md:text-4xl">Tell us about your transfer</h1>
+      <p class="mt-3 text-muted">Once we've matched it against our bank statement (usually within 2 working days) we'll email your official receipt.</p>
+      <div class="mt-6">{% include "includes/bank_details.html" with accounts=bank_accounts reference=request.GET.ref %}</div>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="space-y-4 rounded-lg border border-line p-6 lg:col-span-7" novalidate>
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+      <input type="hidden" name="appeal_code" value="{{ form.appeal_code.value|default:'' }}">
+      <input type="hidden" name="emergency" value="{{ form.emergency.value|default:'' }}">
+      <input type="hidden" name="fundraiser" value="{{ form.fundraiser.value|default:'' }}">
+      <div class="honeypot" aria-hidden="true"><label>Leave empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div><label class="field-label" for="b-first">First name</label><input id="b-first" name="first_name" class="field" value="{{ form.first_name.value|default:'' }}" required>{% for e in form.first_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div><label class="field-label" for="b-last">Last name</label><input id="b-last" name="last_name" class="field" value="{{ form.last_name.value|default:'' }}" required>{% for e in form.last_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div><label class="field-label" for="b-email">Email</label><input id="b-email" type="email" name="email" class="field" value="{{ form.email.value|default:'' }}" required>{% for e in form.email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div><label class="field-label" for="b-phone">Phone <span class="font-normal text-muted">(optional)</span></label><input id="b-phone" name="phone" class="field" value="{{ form.phone.value|default:'' }}"></div>
+        <div><label class="field-label" for="b-amount">Amount sent</label><input id="b-amount" name="amount" inputmode="decimal" class="field" value="{{ form.amount.value|default:'' }}" required>{% for e in form.amount.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div><label class="field-label" for="b-currency">Currency</label>
+          <select id="b-currency" name="currency" class="field">{% for value, label in form.fields.currency.choices %}<option value="{{ value }}" {% if form.currency.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="sm:col-span-2"><label class="field-label" for="b-account">Account you paid into</label>
+          <select id="b-account" name="bank_account" class="field"><option value="">I'm not sure</option>{% for a in form.fields.bank_account.queryset %}<option value="{{ a.pk }}" {% if form.bank_account.value|stringformat:'s' == a.pk|stringformat:'s' %}selected{% endif %}>{{ a }}</option>{% endfor %}</select></div>
+        <div><label class="field-label" for="b-date">Date of transfer</label><input id="b-date" type="date" name="transfer_date" max="{% now 'Y-m-d' %}" class="field" value="{{ form.transfer_date.value|date:'Y-m-d'|default:form.transfer_date.value }}" required>{% for e in form.transfer_date.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div><label class="field-label" for="b-ref">Reference you used</label><input id="b-ref" name="bank_reference" class="field" value="{{ form.bank_reference.value|default:'' }}"></div>
+        <div class="sm:col-span-2"><label class="field-label" for="b-proof">Proof of payment <span class="font-normal text-muted">(optional: screenshot or PDF, max 8 MB)</span></label><input id="b-proof" type="file" name="proof" accept=".pdf,image/*" class="field py-2">{% for e in form.proof.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div class="sm:col-span-2"><label class="field-label" for="b-msg">Message <span class="font-normal text-muted">(optional)</span></label><textarea id="b-msg" name="message" rows="3" class="field">{{ form.message.value|default:'' }}</textarea></div>
+      </div>
+      <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="consent" {% if form.consent.value %}checked{% endif %} required> <span>I confirm I have made this transfer and the details above are correct.</span></label>
+      {% for e in form.consent.errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+      <button type="submit" class="btn-primary w-full">Send my transfer details</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

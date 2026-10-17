@@ -1,0 +1,25 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Appeals report{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Appeals report" subtitle="Which donate buttons raise the most" icon="table" %}{% endblock %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+<form method="get" class="hm-inline">
+  <label>From <input type="date" name="start" value="{{ start|date:'Y-m-d' }}"></label>
+  <label>To <input type="date" name="end" value="{{ end|date:'Y-m-d' }}"></label>
+  <button class="button" type="submit">Show</button>
+  <a class="button button-secondary" href="?start={{ start|date:'Y-m-d' }}&end={{ end|date:'Y-m-d' }}&format=csv">Download CSV</a>
+</form>
+<p><strong>{{ count }}</strong> gifts totalling <strong>{{ totals }}</strong>.</p>
+<h2 class="w-h2">By appeal code</h2>
+<table class="hm-table"><thead><tr><th>Code</th><th>Name</th><th>Gifts</th><th>Total</th></tr></thead><tbody>
+{% for r in by_appeal %}<tr><td>{{ r.appeal_code|default:"(none)" }}</td><td>{{ r.appeal__name|default:"" }}</td><td>{{ r.gifts }}</td><td>{{ r.display }}</td></tr>{% empty %}<tr><td colspan="4" class="hm-muted">Nothing in this range.</td></tr>{% endfor %}
+</tbody></table>
+<h2 class="w-h2">By emergency</h2>
+<table class="hm-table"><thead><tr><th>Emergency</th><th>Gifts</th><th>Total</th></tr></thead><tbody>
+{% for r in by_emergency %}<tr><td>{{ r.emergency__title }}</td><td>{{ r.gifts }}</td><td>{{ r.display }}</td></tr>{% empty %}<tr><td colspan="3" class="hm-muted">Nothing in this range.</td></tr>{% endfor %}
+</tbody></table>
+<h2 class="w-h2">By payment method</h2>
+<table class="hm-table"><thead><tr><th>Method</th><th>Gifts</th><th>Total</th></tr></thead><tbody>
+{% for r in by_method %}<tr><td>{{ r.provider }}</td><td>{{ r.gifts }}</td><td>{{ r.display }}</td></tr>{% empty %}<tr><td colspan="3" class="hm-muted">Nothing in this range.</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

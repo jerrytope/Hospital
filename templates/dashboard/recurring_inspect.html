@@ -1,0 +1,30 @@
+{% extends "wagtailadmin/generic/inspect.html" %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+{% with g=object %}
+<div class="hm-grid">
+  <div class="hm-card"><h3>Monthly amount</h3><div class="v">{{ g.display_amount }}</div></div>
+  <div class="hm-card"><h3>Status</h3><div class="v">{{ g.get_status_display }}</div><span class="hm-muted">{{ g.get_provider_display }}</span></div>
+  <div class="hm-card"><h3>Next charge</h3><div class="v">{{ g.next_charge_date|date:"j M Y"|default:"-" }}</div></div>
+</div>
+<div class="hm-inline">
+  {% if g.status != "cancelled" %}
+  <form method="post" action="{% url 'dashboard_recurring_action' g.pk %}" onsubmit="return confirm('Cancel this monthly gift for the donor?')">{% csrf_token %}<button class="button no" name="action" value="cancel">Cancel on donor's behalf</button></form>
+  {% endif %}
+  {% if g.provider == "fake" and g.status == "active" %}
+  <form method="post" action="{% url 'dashboard_recurring_action' g.pk %}">{% csrf_token %}<button class="button button-secondary" name="action" value="simulate_renewal">Simulate next month's charge (test mode)</button></form>
+  {% endif %}
+</div>
+<table class="hm-table"><tbody>
+<tr><th>Reference</th><td>{{ g.reference }}</td></tr>
+<tr><th>Donor</th><td>{{ g.first_name }} {{ g.last_name }} · {{ g.email }}</td></tr>
+<tr><th>Provider subscription</th><td>{{ g.provider_subscription_id|default:"-" }}</td></tr>
+<tr><th>Appeal</th><td>{{ g.appeal_code|default:"-" }}</td></tr>
+<tr><th>Started</th><td>{{ g.created_at|date:"j M Y" }}</td></tr>
+</tbody></table>
+<h2 class="w-h2">Charges</h2>
+<table class="hm-table"><thead><tr><th>Reference</th><th>Amount</th><th>Status</th><th>Paid</th></tr></thead><tbody>
+{% for d in g.charges.all %}<tr><td>{{ d.reference }}</td><td>{{ d.display_amount }}</td><td>{{ d.get_status_display }}</td><td>{{ d.paid_at|date:"j M Y"|default:"-" }}</td></tr>{% empty %}<tr><td colspan="4" class="hm-muted">No charges yet.</td></tr>{% endfor %}
+</tbody></table>
+{% endwith %}
+{% endblock %}

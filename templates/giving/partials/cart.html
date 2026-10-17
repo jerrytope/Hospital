@@ -1,0 +1,22 @@
+{% load site_tags %}
+<div class="rounded-lg border border-line bg-white p-6 shadow-card" id="gift-cart-inner">
+  <h2 class="flex items-center gap-2 text-xl">{% icon "gift" "h-5 w-5 text-accent" %} Your gift basket</h2>
+  {% if lines %}
+    <ul class="mt-4 divide-y divide-line">
+      {% for line in lines %}
+        <li class="flex items-center justify-between gap-3 py-3">
+          <div><p class="font-semibold text-brand-dark">{{ line.item.title }}</p><p class="text-sm text-muted">{{ line.price|money:cart.currency }} each</p></div>
+          <div class="flex items-center gap-1">
+            <button type="button" class="h-8 w-8 rounded-full border border-line font-bold" hx-post="{% url 'giving:cart_update' %}" hx-vals='{"item": "{{ line.item.pk }}", "action": "remove"}' hx-target="#gift-cart" aria-label="Remove one {{ line.item.title }}">−</button>
+            <span class="w-6 text-center font-bold" aria-label="Quantity">{{ line.qty }}</span>
+            <button type="button" class="h-8 w-8 rounded-full border border-line font-bold" hx-post="{% url 'giving:cart_update' %}" hx-vals='{"item": "{{ line.item.pk }}", "action": "add"}' hx-target="#gift-cart" aria-label="Add one {{ line.item.title }}">+</button>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="mt-4 flex items-center justify-between border-t border-line pt-4"><span class="font-semibold">Total</span><span class="font-display text-2xl font-extrabold text-brand-dark">{{ display_total }}</span></div>
+    <a href="{% url 'giving:gift_checkout' %}" class="btn-donate mt-4 w-full">Checkout</a>
+  {% else %}
+    <p class="mt-3 text-muted">Your basket is empty. Choose a gift to get started.</p>
+  {% endif %}
+</div>

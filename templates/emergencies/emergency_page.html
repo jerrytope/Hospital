@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" with eyebrow=page.eyebrow|default:"Emergency Response" %}
+
+{# Sticky in-page navigation #}
+<nav class="sticky top-16 z-30 border-b border-line bg-white/95 backdrop-blur lg:top-20" aria-label="On this page">
+  <div class="container-site flex items-center gap-1 overflow-x-auto py-2">
+    {% for anchor, label in anchor_nav %}<a href="#{{ anchor }}" class="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold text-brand-dark no-underline hover:bg-brand-mist">{{ label }}</a>{% endfor %}
+    <a href="#donate" class="btn-donate ml-auto shrink-0 px-4 py-1.5">Donate</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="container-site grid gap-10 lg:grid-cols-12">
+    <div class="prose-site lg:col-span-7">{{ page.summary|richtext }}</div>
+    <aside id="donate" class="scroll-mt-36 lg:col-span-5">
+      <div class="rounded-lg border-t-8 border-accent bg-white p-6 shadow-card">
+        <h2 class="text-2xl">{{ page.donate_heading }}</h2>
+        {% if page.donate_text %}<p class="mt-2 text-muted">{{ page.donate_text }}</p>{% endif %}
+        <div class="mt-4 grid grid-cols-3 gap-2">
+          {% for amount in emergency_presets %}<a href="{% donate_href page.appeal_code emergency=page %}&amount={{ amount }}" data-donate class="rounded-md border-2 border-brand py-2 text-center font-display font-bold text-brand no-underline hover:bg-brand hover:text-white">{{ amount|money:emergency_currency }}</a>{% endfor %}
+        </div>
+        <a href="{% donate_href page.appeal_code emergency=page %}" data-donate class="btn-donate mt-4 w-full py-4 text-base">Donate to this emergency</a>
+        <p class="mt-3 text-center text-sm text-muted">Gifts made here go to the {{ page.title }} response.</p>
+        {% bank_accounts "donate" emergency=page as em_accounts %}
+        {% if em_accounts %}
+          <details class="mt-4 rounded-md bg-brand-mist p-3">
+            <summary class="cursor-pointer font-semibold text-brand-dark">Prefer to give by bank transfer?</summary>
+            <div class="mt-3">{% include "includes/bank_details.html" with accounts=em_accounts reference=page.appeal_code %}</div>
+            <a href="{% url 'giving:bank_notice' %}?emergency={{ page.pk }}&appeal={{ page.appeal_code }}" class="link-arrow mt-3">I've made a transfer {% icon "arrow-right" "h-4 w-4" %}</a>
+          </details>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% if page.key_facts %}
+<section class="bg-brand-mist py-12">
+  <div class="container-site">
+    <h2 class="h-section">Key facts</h2>
+    <ul class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {% for f in page.key_facts %}
+        <li class="flex gap-4 rounded-lg bg-white p-5">
+          <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">{% icon f.value.icon "h-6 w-6" %}</span>
+          <div>{% if f.value.value %}<p class="font-display text-2xl font-extrabold text-brand-dark">{{ f.value.value }}</p>{% endif %}<p class="text-muted">{{ f.value.text }}</p></div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% if page.responses %}
+<section class="section">
+  <div class="container-site max-w-5xl">
+    <h2 class="h-section">{{ page.response_heading }}</h2>
+    <div class="mt-6 space-y-10">{% for block in page.responses %}{% include_block block %}{% endfor %}</div>
+  </div>
+</section>
+{% endif %}
+
+{% if page.history %}<section id="history" class="scroll-mt-36 section bg-brand-mist"><div class="container-site max-w-5xl"><h2 class="h-section">History</h2><div class="prose-site mt-4">{{ page.history|richtext }}</div></div></section>{% endif %}
+{% if page.expertise %}<section id="expertise" class="scroll-mt-36 section"><div class="container-site max-w-5xl"><h2 class="h-section">Our Expertise</h2><div class="prose-site mt-4">{{ page.expertise|richtext }}</div></div></section>{% endif %}
+
+{% with faqs=page.faqs.all %}
+{% if faqs %}
+<section id="faq" class="scroll-mt-36 section bg-brand-mist">
+  <div class="container-site max-w-5xl">
+    <h2 class="h-section">Frequently asked questions</h2>
+    <div class="mt-6 divide-y divide-line border-y border-line bg-white px-4">
+      {% for item in faqs %}
+        <div x-data="{ open: false }">
+          <h3 class="text-lg"><button type="button" class="flex w-full items-center justify-between gap-4 py-5 text-left font-display font-bold text-brand-dark" @click="open = !open" :aria-expanded="open">{{ item.question }} <span class="transition" :class="open ? 'rotate-180' : ''">{% icon "chevron-down" "h-5 w-5" %}</span></button></h3>
+          <div x-show="open" x-collapse x-cloak class="prose-site pb-6">{{ item.answer|richtext }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{% if featured %}
+<section class="section">
+  <div class="container-site grid gap-6 md:grid-cols-2">
+    {% for story in featured %}{% include "includes/cards/story_card.html" with show_excerpt=True %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if media_alerts %}
+<section id="media-alerts" class="scroll-mt-36 section bg-brand-mist">
+  <div class="container-site">
+    <h2 class="h-section">Media Alerts</h2>
+    <ul class="mt-6 divide-y divide-line border-y border-line bg-white">
+      {% for m in media_alerts %}
+        <li class="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:gap-6">
+          <span class="w-32 shrink-0 text-sm font-semibold text-muted">{{ m.date|date:"M j, Y" }}</span>
+          <span class="w-40 shrink-0 font-display text-sm font-bold uppercase tracking-wider text-brand-light">{{ m.outlet }}</span>
+          <a href="{{ m.href }}" class="flex-1 font-semibold text-brand-dark no-underline hover:text-brand" {% if not m.video_page %}target="_blank" rel="noopener"{% endif %}>{{ m.headline }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% include "includes/sitrep_list.html" with items=sitreps %}
+{% include "includes/resource_list.html" with items=resources %}
+{% for block in page.body %}{% include_block block %}{% endfor %}
+{% stories_url emergency=page.slug as explore %}
+{% include "includes/related_stories.html" with stories=related_stories heading="Related stories" explore_url=explore %}
+<div class="container-site pb-12 text-center">
+  {% with em=settings.core.OrganisationSettings.emergencies_page %}{% if em %}<a href="{% pageurl em %}" class="btn-outline">View all active emergencies</a>{% endif %}{% endwith %}
+</div>
+{% include "includes/donate_box.html" with heading=page.donate_heading appeal=page.appeal_code emergency=page %}
+{% endblock %}

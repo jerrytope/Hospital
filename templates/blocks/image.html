@@ -1,0 +1,8 @@
+{% load wagtailimages_tags %}
+<figure class="{% if value.full_width %}my-10{% else %}container-site my-8 max-w-4xl{% endif %}">
+  {% if value.full_width %}{% image value.image width-1920 format-webp class="w-full" loading="lazy" %}
+  {% else %}{% image value.image width-1200 format-webp class="w-full rounded-lg" loading="lazy" %}{% endif %}
+  {% if value.caption or value.image.credit %}
+    <figcaption class="{% if value.full_width %}container-site{% endif %} mt-2 text-sm text-muted">{{ value.caption }}{% if value.image.credit %} <span class="italic">Photo: {{ value.image.credit }}</span>{% endif %}</figcaption>
+  {% endif %}
+</figure>

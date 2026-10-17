@@ -1,0 +1,135 @@
+{% load wagtailcore_tags site_tags %}
+{# Shared by the donate pop-up and /donate/. Card gifts post to checkout; bank transfer shows account details. #}
+<div id="donate-form-wrap"
+     x-data="donateForm({ currency: '{{ currency }}', frequency: '{{ frequency }}', amount: '{{ form.amount.value|default:default_amount }}', method: '{{ default_method }}',
+                          presets: JSON.parse(document.getElementById('donate-presets').textContent),
+                          minimums: JSON.parse(document.getElementById('donate-minimums').textContent),
+                          cardCurrencies: JSON.parse(document.getElementById('donate-card-cur').textContent),
+                          bankCurrencies: JSON.parse(document.getElementById('donate-bank-cur').textContent) })">
+  {{ presets|json_script:"donate-presets" }}{{ minimums|json_script:"donate-minimums" }}{{ card_currencies|json_script:"donate-card-cur" }}{{ bank_currencies|json_script:"donate-bank-cur" }}
+
+  {% if emergency %}<p class="mb-4 rounded-md bg-accent/10 px-4 py-2 text-sm font-semibold text-accent">Your gift goes to: {{ emergency.title }}</p>{% endif %}
+  {% if fundraiser %}<p class="mb-4 rounded-md bg-brand-mist px-4 py-2 text-sm font-semibold text-brand-dark">Supporting {{ fundraiser.owner.first_name|default:"a supporter" }}'s fundraiser: {{ fundraiser.title }}</p>{% endif %}
+  {% if checkout_error %}<p class="mb-4 rounded-md border border-danger bg-red-50 px-4 py-3 text-sm text-danger" role="alert">{{ checkout_error }}</p>{% endif %}
+  {% if form.non_field_errors %}<p class="mb-4 text-sm text-danger" role="alert">{{ form.non_field_errors.0 }}</p>{% endif %}
+
+  {# Currency #}
+  {% if currencies|length > 1 %}
+  <div class="mb-4 flex items-center justify-between gap-2">
+    <span class="text-sm font-semibold text-muted">Currency</span>
+    <div class="inline-flex rounded-full bg-brand-mist p-1" role="group" aria-label="Currency">
+      {% for c in currencies %}
+        <button type="button" class="rounded-full px-4 py-1.5 text-sm font-bold" :class="currency === '{{ c }}' ? 'bg-white text-brand-dark shadow' : 'text-muted'" @click="setCurrency('{{ c }}')" :aria-pressed="currency === '{{ c }}'">{{ c }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Method tabs #}
+  <div class="mb-5 grid grid-cols-2 gap-2" role="tablist" aria-label="How would you like to give?">
+    <button type="button" role="tab" class="rounded-md border-2 px-3 py-3 font-display text-sm font-bold" :aria-selected="method === 'card'"
+            :class="method === 'card' ? 'border-brand bg-brand text-white' : 'border-line text-brand-dark'" @click="method = 'card'"
+            :disabled="!cardCurrencies.includes(currency)" :title="!cardCurrencies.includes(currency) ? 'Card payments are not available in this currency' : ''">{% icon "heart" "inline h-4 w-4" %} Card / online</button>
+    <button type="button" role="tab" class="rounded-md border-2 px-3 py-3 font-display text-sm font-bold" :aria-selected="method === 'bank'"
+            :class="method === 'bank' ? 'border-brand bg-brand text-white' : 'border-line text-brand-dark'" @click="method = 'bank'"
+            :disabled="!bankCurrencies.includes(currency)" :title="!bankCurrencies.includes(currency) ? 'No bank account in this currency' : ''">{% icon "house" "inline h-4 w-4" %} Bank transfer</button>
+  </div>
+
+  {# --- Card form --- #}
+  <form x-show="method === 'card'" method="post" action="{% url 'giving:checkout' %}" hx-post="{% url 'giving:checkout' %}" hx-target="#donate-form-wrap" hx-swap="outerHTML" hx-disabled-elt="find button[type=submit]" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="currency" :value="currency">
+    <input type="hidden" name="frequency" :value="frequency">
+    <input type="hidden" name="amount" :value="finalAmount">
+    <input type="hidden" name="appeal_code" value="{{ appeal }}">
+    <input type="hidden" name="emergency" value="{{ emergency.pk|default:'' }}">
+    <input type="hidden" name="fundraiser" value="{{ fundraiser.slug|default:'' }}">
+    <input type="hidden" name="source_url" value="{{ source_url }}">
+    <div class="honeypot" aria-hidden="true"><label>Leave empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+    {% if ds.enable_monthly and not fundraiser %}
+    <div class="mb-4 grid grid-cols-2 gap-2" role="group" aria-label="Frequency">
+      <button type="button" class="rounded-md border-2 py-2.5 font-display text-sm font-bold" :class="frequency === 'one_time' ? 'border-accent text-accent' : 'border-line text-muted'" @click="frequency = 'one_time'" :aria-pressed="frequency === 'one_time'">Give once</button>
+      <button type="button" class="rounded-md border-2 py-2.5 font-display text-sm font-bold" :class="frequency === 'monthly' ? 'border-accent text-accent' : 'border-line text-muted'" @click="frequency = 'monthly'" :aria-pressed="frequency === 'monthly'">{% icon "heart" "inline h-4 w-4" %} Monthly</button>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-3 gap-2" role="group" aria-label="Amount">
+      <template x-for="p in presets[currency]" :key="currency + p">
+        <button type="button" class="rounded-md border-2 py-3 font-display font-extrabold" :class="custom === '' && amount === p ? 'border-brand bg-brand text-white' : 'border-line text-brand-dark hover:border-brand'" @click="pick(p)" x-text="fmt(p)"></button>
+      </template>
+      <label class="col-span-3 flex items-center gap-2 rounded-md border-2 px-3 focus-within:border-brand sm:col-span-1" :class="custom !== '' ? 'border-brand' : 'border-line'">
+        <span class="font-bold text-muted" x-text="symbols[currency]"></span>
+        <input type="text" inputmode="decimal" x-model="custom" placeholder="Other" class="w-full border-0 bg-transparent py-3 font-display font-extrabold text-brand-dark focus:outline-none" aria-label="Other amount">
+      </label>
+    </div>
+    <p class="mt-2 text-sm text-danger" x-show="belowMinimum" x-cloak>The minimum gift is <span x-text="fmt(minimum)"></span>.</p>
+    {% if form.amount.errors %}<p class="field-error">{{ form.amount.errors.0 }}</p>{% endif %}
+    {% if form.currency.errors %}<p class="field-error">{{ form.currency.errors.0 }}</p>{% endif %}
+    {% if form.frequency.errors %}<p class="field-error">{{ form.frequency.errors.0 }}</p>{% endif %}
+    <p class="mt-2 text-sm text-muted" x-show="frequency === 'monthly'" x-cloak>Your card is charged each month. Change or cancel any time from your account.</p>
+
+    <div class="mt-5 grid gap-3 sm:grid-cols-2">
+      <div><label class="field-label" for="d-first">First name</label><input id="d-first" name="first_name" class="field" required autocomplete="given-name" value="{{ form.first_name.value|default:'' }}">{% if form.first_name.errors %}<p class="field-error">{{ form.first_name.errors.0 }}</p>{% endif %}</div>
+      <div><label class="field-label" for="d-last">Last name</label><input id="d-last" name="last_name" class="field" required autocomplete="family-name" value="{{ form.last_name.value|default:'' }}">{% if form.last_name.errors %}<p class="field-error">{{ form.last_name.errors.0 }}</p>{% endif %}</div>
+      <div class="sm:col-span-2"><label class="field-label" for="d-email">Email (for your receipt)</label><input id="d-email" name="email" type="email" class="field" required autocomplete="email" value="{{ form.email.value|default:'' }}">{% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}</div>
+      <div class="sm:col-span-2"><label class="field-label" for="d-phone">Phone <span class="font-normal text-muted">(optional)</span></label><input id="d-phone" name="phone" type="tel" class="field" autocomplete="tel" value="{{ form.phone.value|default:'' }}"></div>
+    </div>
+
+    {% if fundraiser %}
+    <div class="mt-4 space-y-3 rounded-md bg-brand-mist p-4">
+      <div><label class="field-label" for="d-display">Name shown on the fundraiser</label><input id="d-display" name="display_name" class="field" value="{{ form.display_name.value|default:'' }}" placeholder="e.g. The Okafor family"></div>
+      <div><label class="field-label" for="d-msg">Message of support <span class="font-normal text-muted">(optional)</span></label><input id="d-msg" name="public_message" maxlength="280" class="field" value="{{ form.public_message.value|default:'' }}"></div>
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_anonymous" {% if form.is_anonymous.value %}checked{% endif %}> Hide my name on the page</label>
+    </div>
+    {% endif %}
+
+    {% if not fundraiser %}
+    <div class="mt-4 rounded-md border border-line" x-data="{ tribute: {{ form.tribute.value|yesno:'true,false' }} }">
+      <label class="flex cursor-pointer items-center gap-2 p-3 font-semibold text-brand-dark"><input type="checkbox" name="tribute" x-model="tribute"> Dedicate this gift in honour or memory of someone</label>
+      <div x-show="tribute" x-collapse x-cloak class="space-y-3 border-t border-line p-4">
+        <div class="flex gap-4 text-sm">
+          <label class="flex items-center gap-2"><input type="radio" name="card_type" value="honor" {% if form.card_type.value != "memory" %}checked{% endif %}> In honour of</label>
+          <label class="flex items-center gap-2"><input type="radio" name="card_type" value="memory" {% if form.card_type.value == "memory" %}checked{% endif %}> In memory of</label>
+        </div>
+        <div><label class="field-label" for="t-honoree">Their name</label><input id="t-honoree" name="honoree_name" class="field" value="{{ form.honoree_name.value|default:'' }}">{% if form.honoree_name.errors %}<p class="field-error">{{ form.honoree_name.errors.0 }}</p>{% endif %}</div>
+        <p class="text-sm text-muted">Send an e-card to let someone know (optional). E-cards show your name; the amount stays private.</p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="field-label" for="t-rname">Recipient's name</label><input id="t-rname" name="recipient_name" class="field" value="{{ form.recipient_name.value|default:'' }}">{% if form.recipient_name.errors %}<p class="field-error">{{ form.recipient_name.errors.0 }}</p>{% endif %}</div>
+          <div><label class="field-label" for="t-remail">Recipient's email</label><input id="t-remail" type="email" name="recipient_email" class="field" value="{{ form.recipient_email.value|default:'' }}">{% if form.recipient_email.errors %}<p class="field-error">{{ form.recipient_email.errors.0 }}</p>{% endif %}</div>
+        </div>
+        <div><label class="field-label" for="t-msg">Message</label><textarea id="t-msg" name="message" rows="3" maxlength="1000" class="field">{{ form.message.value|default:'' }}</textarea></div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="field-label" for="t-date">Send on</label><input id="t-date" type="date" name="send_date" min="{{ today|date:'Y-m-d' }}" class="field" value="{{ form.send_date.value|default:'' }}">{% if form.send_date.errors %}<p class="field-error">{{ form.send_date.errors.0 }}</p>{% endif %}</div>
+          <div><label class="field-label" for="t-design">Card design</label><select id="t-design" name="design" class="field"><option value="hope">Hope (blue)</option><option value="bloom">Bloom (green)</option><option value="light">Light (gold)</option></select></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn-donate mt-6 w-full py-4 text-base" :disabled="belowMinimum || finalAmount === ''">
+      <span x-text="'Donate ' + (finalAmount ? fmt(finalAmount) : '') + (frequency === 'monthly' ? ' monthly' : '')">Donate</span>
+    </button>
+    <p class="mt-3 flex items-center justify-center gap-1 text-center text-xs text-muted">{% icon "lock" "h-3 w-3" %} Secure payment by <span x-text="currency === 'NGN' ? 'Paystack' : 'Stripe'"></span>. We never see your card details.</p>
+  </form>
+
+  {# --- Bank transfer --- #}
+  <div x-show="method === 'bank'" x-cloak>
+    <div class="prose-site text-base">{{ ds.bank_transfer_intro|richtext }}</div>
+    <div class="mt-4 space-y-4">
+      {% for acct in bank_accounts %}
+        <div x-show="currency === '{{ acct.currency }}' || !['NGN','USD'].includes('{{ acct.currency }}')">{% include "includes/bank_details.html" with accounts=acct|as_list %}</div>
+      {% endfor %}
+    </div>
+    <div class="mt-4 rounded-lg bg-brand-mist p-4">
+      <p class="text-sm text-muted">Use this reference on your transfer so we can match your gift:</p>
+      <div class="mt-1 flex flex-wrap items-center gap-3">
+        <span class="font-display text-lg font-extrabold text-brand-dark">{{ suggested_reference }}</span>
+        <button type="button" data-copy="{{ suggested_reference }}" class="inline-flex items-center gap-1 rounded-full border border-brand px-3 py-1 text-sm font-semibold text-brand hover:bg-brand hover:text-white">{% icon "copy" "h-4 w-4" %} <span data-copy-label>Copy</span></button>
+      </div>
+    </div>
+    <a href="{% url 'giving:bank_notice' %}?currency={{ currency }}&appeal={{ appeal }}{% if emergency %}&emergency={{ emergency.pk }}{% endif %}{% if fundraiser %}&fundraiser={{ fundraiser.slug }}{% endif %}&ref={{ suggested_reference }}"
+       class="btn-primary mt-5 w-full" :href="'{% url 'giving:bank_notice' %}?currency=' + currency + '&appeal={{ appeal }}{% if emergency %}&emergency={{ emergency.pk }}{% endif %}{% if fundraiser %}&fundraiser={{ fundraiser.slug }}{% endif %}&ref={{ suggested_reference }}'">I've made a transfer: send my receipt</a>
+    <p class="mt-3 text-center text-xs text-muted">Only use the accounts shown on this website. We will never email you different bank details.</p>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+{% load wagtailimages_tags %}
+<section class="my-10 bg-brand-mist">
+  <div class="container-site flex flex-col items-center gap-8 py-12 md:flex-row md:py-16">
+    {% if value.image %}{% image value.image fill-240x240 class="h-32 w-32 shrink-0 rounded-full object-cover md:h-40 md:w-40" loading="lazy" %}{% endif %}
+    <blockquote class="max-w-4xl">
+      <p class="font-serif text-2xl italic leading-snug text-brand-dark md:text-3xl">&ldquo;{{ value.quote }}&rdquo;</p>
+      {% if value.name %}<footer class="mt-4 font-display font-bold text-brand-dark">{{ value.name }}{% if value.role %}<span class="block text-sm font-semibold text-muted">{{ value.role }}</span>{% endif %}</footer>{% endif %}
+    </blockquote>
+  </div>
+</section>

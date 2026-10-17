@@ -1,0 +1,25 @@
+{% extends "accounts/_layout.html" %}
+{% block title %}Profile{% endblock %}
+{% block account_title %}Your details{% endblock %}
+{% block account_content %}
+<form method="post" class="space-y-6" novalidate>
+  {% csrf_token %}
+  <div class="auth-form grid gap-4 sm:grid-cols-2">
+    {% for field in user_form %}<div><label class="field-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+  </div>
+  <h2 class="text-xl">Address</h2>
+  <div class="auth-form grid gap-4 sm:grid-cols-2">
+    {% for field in profile_form %}
+      {% if field.widget_type == "checkbox" %}<label class="flex items-center gap-2 sm:col-span-2">{{ field }} {{ field.label }}</label>
+      {% else %}<div><label class="field-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endif %}
+    {% endfor %}
+  </div>
+  <button type="submit" class="btn-primary">Save changes</button>
+</form>
+<div class="mt-12 grid gap-4 sm:grid-cols-2">
+  <a href="{% url 'account_email' %}" class="rounded-lg border border-line p-5 no-underline hover:border-brand"><p class="font-display font-bold text-brand-dark">Change email address</p><p class="text-sm text-muted">Currently {{ user.email }}. We'll ask you to confirm the new one.</p></a>
+  <a href="{% url 'account_change_password' %}" class="rounded-lg border border-line p-5 no-underline hover:border-brand"><p class="font-display font-bold text-brand-dark">Change password</p><p class="text-sm text-muted">Keep your account secure.</p></a>
+  <a href="{% url 'account_export' %}" class="rounded-lg border border-line p-5 no-underline hover:border-brand"><p class="font-display font-bold text-brand-dark">Download my data</p><p class="text-sm text-muted">A copy of your account and giving history.</p></a>
+  <a href="{% url 'account_delete' %}" class="rounded-lg border border-line p-5 no-underline hover:border-danger"><p class="font-display font-bold text-danger">Delete my account</p><p class="text-sm text-muted">Removes your personal details.</p></a>
+</div>
+{% endblock %}

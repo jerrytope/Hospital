@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% with org=settings.core.OrganisationSettings %}
+<section class="section">
+  <div class="container-site">
+    {% if page.intro %}<div class="prose-site mb-10 max-w-3xl">{{ page.intro|richtext }}</div>{% endif %}
+    <div class="grid gap-6 md:grid-cols-2">
+      {% for office in offices %}
+        <div class="rounded-lg border border-line p-6">
+          <h2 class="flex items-center gap-2 text-xl">{% icon "map-pin" "h-5 w-5 text-accent" %} {{ office.name }}</h2>
+          {% if office.address %}<p class="mt-3 text-muted">{{ office.address|linebreaksbr }}</p>{% endif %}
+          <dl class="mt-3 space-y-1">
+            {% if office.phone %}<div><dt class="inline font-semibold">Phone:</dt> <dd class="inline"><a href="tel:{{ office.phone }}">{{ office.phone }}</a></dd></div>{% endif %}
+            {% if office.fax %}<div><dt class="inline font-semibold">Fax:</dt> <dd class="inline">{{ office.fax }}</dd></div>{% endif %}
+            {% for label, email in office.email_list %}<div>{% if label %}<dt class="inline font-semibold">{{ label }}:</dt> {% endif %}<dd class="inline"><a href="mailto:{{ email }}">{{ email }}</a></dd></div>{% endfor %}
+          </dl>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% with depts=page.departments.all %}
+{% if depts %}
+<section class="section bg-brand-mist">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.departments_heading }}</h2>
+    <dl class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for d in depts %}<div class="rounded-lg bg-white p-5"><dt class="font-display font-bold text-brand-dark">{{ d.label }}</dt><dd class="mt-1"><a href="mailto:{{ d.email }}">{{ d.email }}</a></dd></div>{% endfor %}
+    </dl>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+<section class="section">
+  <div class="container-site grid gap-8 md:grid-cols-2">
+    <div class="rounded-lg border border-line p-6">
+      <h2 class="text-xl">Donate by post</h2>
+      <p class="mt-2 text-muted">Prefer to give by cheque or bank draft? Download our donation form and post it to our headquarters.</p>
+      {% if org.mail_donation_form %}<a href="{{ org.mail_donation_form.url }}" class="btn-outline mt-4">{% icon "download" "h-4 w-4" %} Download form (PDF)</a>{% endif %}
+      {% if org.donation_hotline %}<p class="mt-4 font-semibold">Or give by phone: <a href="tel:{{ org.donation_hotline }}">{{ org.donation_hotline }}</a></p>{% endif %}
+    </div>
+    <div class="rounded-lg border border-line p-6">
+      <h2 class="text-xl">Have a question?</h2>
+      <p class="mt-2 text-muted">Most questions about our work, funding and how to help are answered in our FAQ.</p>
+      {% if org.faq_page %}<a href="{% pageurl org.faq_page %}" class="btn-outline mt-4">Read the FAQ</a>{% endif %}
+    </div>
+  </div>
+  {% bank_accounts "contact" as accts %}
+  {% if accts %}<div class="container-site mt-8 max-w-3xl"><h2 class="text-xl">Give by bank transfer</h2><div class="mt-4">{% include "includes/bank_details.html" with accounts=accts %}</div></div>{% endif %}
+</section>
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% load site_tags %}
+<section class="container-site py-10">
+  {% if value.heading %}<h2 class="h-section mb-8">{{ value.heading }}</h2>{% endif %}
+  <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    {% for item in value.items %}
+      <div>
+        <span class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-mist text-brand">{% icon item.icon "h-6 w-6" %}</span>
+        <h3 class="mt-4 text-xl">{{ item.title }}</h3>
+        {% if item.text %}<p class="mt-2 text-muted">{{ item.text }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>

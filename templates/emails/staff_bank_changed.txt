@@ -1,0 +1,7 @@
+SECURITY NOTICE: bank account details shown on the website were {{ action }}.
+
+Account: {{ account_label }}
+Changed by: {{ staff_email }}
+When: {{ when|date:"j F Y, H:i" }}
+
+If you did not expect this change, sign in to the admin straight away, check the bank accounts, and change your password.

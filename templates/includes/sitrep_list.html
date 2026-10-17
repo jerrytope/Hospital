@@ -1,0 +1,18 @@
+{% load site_tags %}
+{% if items %}
+<section class="section bg-brand-mist" id="situation-reports" aria-labelledby="sitreps-h">
+  <div class="container-site">
+    <h2 id="sitreps-h" class="h-section">Situation Reports</h2>
+    <ul class="mt-6 divide-y divide-line border-y border-line bg-white">
+      {% for s in items %}
+        <li class="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:gap-6">
+          <span class="w-32 shrink-0 text-sm font-semibold text-muted">{{ s.date|date:"M j, Y" }}</span>
+          {% if s.document %}<a href="{{ s.document.url }}" class="flex-1 font-semibold text-brand-dark no-underline hover:text-brand">{{ s.title }}{% if s.number %} #{{ s.number }}{% endif %}</a>
+          {% else %}<span class="flex-1 font-semibold">{{ s.title }}</span>{% endif %}
+          <span class="inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-brand">{% icon "download" "h-4 w-4" %} PDF</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}

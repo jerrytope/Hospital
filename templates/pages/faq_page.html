@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+<section class="section">
+  <div class="container-site grid gap-12 lg:grid-cols-12">
+    <div class="lg:col-span-8">
+      {% if page.intro %}<div class="prose-site mb-8">{{ page.intro|richtext }}</div>{% endif %}
+      <div class="divide-y divide-line border-y border-line">
+        {% for item in page.faqs.all %}
+          <div x-data="{ open: {% if forloop.first %}true{% else %}false{% endif %} }">
+            <h2 class="text-lg md:text-xl">
+              <button type="button" class="flex w-full items-center justify-between gap-4 py-5 text-left font-display font-bold text-brand-dark" @click="open = !open" :aria-expanded="open">
+                {{ item.question }} <span class="transition" :class="open ? 'rotate-180' : ''">{% icon "chevron-down" "h-5 w-5" %}</span>
+              </button>
+            </h2>
+            <div x-show="open" x-collapse {% if not forloop.first %}x-cloak{% endif %} class="prose-site pb-6">{{ item.answer|richtext }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <aside class="lg:col-span-4">
+      <div class="sticky top-28 rounded-lg bg-brand-mist p-6">
+        {% with org=settings.core.OrganisationSettings %}
+        <h2 class="text-xl">{{ page.side_heading }}</h2>
+        {% if page.side_text %}<div class="prose-site mt-2 text-base">{{ page.side_text|richtext }}</div>{% endif %}
+        <dl class="mt-4 space-y-3 text-base">
+          {% if org.hq_address %}<div><dt class="font-semibold text-brand-dark">Headquarters</dt><dd class="text-muted">{{ org.hq_address|linebreaksbr }}</dd></div>{% endif %}
+          {% if org.main_phone %}<div><dt class="font-semibold text-brand-dark">Phone</dt><dd><a href="tel:{{ org.main_phone }}">{{ org.main_phone }}</a></dd></div>{% endif %}
+          {% if org.fax %}<div><dt class="font-semibold text-brand-dark">Fax</dt><dd class="text-muted">{{ org.fax }}</dd></div>{% endif %}
+          {% if org.general_email %}<div><dt class="font-semibold text-brand-dark">Email</dt><dd><a href="mailto:{{ org.general_email }}">{{ org.general_email }}</a></dd></div>{% endif %}
+          {% if org.donation_hotline %}<div><dt class="font-semibold text-brand-dark">Donation hotline</dt><dd><a href="tel:{{ org.donation_hotline }}">{{ org.donation_hotline }}</a></dd></div>{% endif %}
+        </dl>
+        {% endwith %}
+        <a href="{% donate_href 'FAQ' %}" data-donate class="btn-donate mt-6 w-full">Donate now</a>
+        {% bank_accounts "contact" as accts %}
+        {% if accts %}<div class="mt-6"><p class="mb-2 font-display text-sm font-bold uppercase tracking-widest text-muted">Give by bank transfer</p>{% include "includes/bank_details.html" with accounts=accts %}</div>{% endif %}
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

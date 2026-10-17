@@ -1,0 +1,7 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>Dear {{ notice.first_name }},</p>
+<p>We could not match the bank transfer you told us about ({{ notice.display_amount }}, reference {{ notice.reference }}).</p>
+{% if notice.rejection_reason %}<p><strong>Reason:</strong> {{ notice.rejection_reason|linebreaksbr }}</p>{% endif %}
+<p>If you believe this is a mistake, please reply to this email{% if org.donations_email %} or write to {{ org.donations_email }}{% endif %} with your transfer details.</p>
+{% endblock %}

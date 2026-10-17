@@ -1,0 +1,161 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% header_menu as menu %}
+<header x-data="siteHeader()" @keydown.escape.window="close()" @click.outside="open = null"
+        class="sticky top-0 z-50 border-b border-line bg-white transition-shadow"
+        :class="scrolled ? 'shadow-md' : ''">
+  <div class="mx-auto flex h-16 w-full max-w-[1560px] items-center gap-3 px-4 md:px-6 lg:h-20">
+    {# Logo #}
+    <a href="/" class="flex shrink-0 items-center gap-3 no-underline" aria-label="{{ org.name }} home">
+      {% if org.logo %}
+        {% image org.logo height-56 class="h-10 w-auto lg:h-12" alt=org.name %}
+      {% else %}
+        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white lg:h-12 lg:w-12">{% icon "heart-pulse" "h-6 w-6" %}</span>
+        <span class="flex flex-col leading-none">
+          <span class="font-display text-base font-extrabold text-brand-dark lg:text-lg">{{ org.name }}</span>
+          {% if org.tagline %}<span class="hidden font-serif text-xs italic text-muted min-[1600px]:block">{{ org.tagline }}</span>{% endif %}
+        </span>
+      {% endif %}
+    </a>
+
+    {# Desktop menu #}
+    <nav class="ml-auto hidden h-full min-[1280px]:block" aria-label="Main">
+      <ul class="flex h-full items-stretch">
+        {% for item in menu %}
+          <li class="flex">
+            <button type="button" class="flex items-center gap-0.5 whitespace-nowrap border-b-4 px-2 font-display text-[13px] font-bold text-brand-dark 2xl:px-3 2xl:text-sm"
+                    :class="open === {{ forloop.counter }} ? 'border-accent' : 'border-transparent hover:border-line'"
+                    @click="toggle({{ forloop.counter }})" :aria-expanded="open === {{ forloop.counter }}"
+                    aria-controls="mega-{{ forloop.counter }}">
+              {{ item.label }} {% icon "chevron-down" "h-4 w-4 transition" %}
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1 min-[1280px]:ml-2">
+      <button type="button" class="rounded-full p-2 text-brand-dark hover:bg-brand-mist" @click="$dispatch('open-search')" aria-label="Search">
+        {% icon "search" "h-5 w-5" %}
+      </button>
+      <div class="hidden items-center min-[1600px]:flex">
+        {% if org.facebook_url %}<a href="{{ org.facebook_url }}" class="rounded-full p-2 text-brand-dark hover:bg-brand-mist" aria-label="Facebook" rel="noopener" target="_blank">{% icon "facebook" "h-5 w-5" %}</a>{% endif %}
+        {% if org.x_url %}<a href="{{ org.x_url }}" class="rounded-full p-2 text-brand-dark hover:bg-brand-mist" aria-label="X" rel="noopener" target="_blank">{% icon "x-social" "h-4 w-4" %}</a>{% endif %}
+        {% if org.instagram_url %}<a href="{{ org.instagram_url }}" class="rounded-full p-2 text-brand-dark hover:bg-brand-mist" aria-label="Instagram" rel="noopener" target="_blank">{% icon "instagram" "h-5 w-5" %}</a>{% endif %}
+      </div>
+      <a href="{% if user.is_authenticated %}{% url 'account_dashboard' %}{% else %}{% url 'account_login' %}{% endif %}"
+         class="hidden rounded-full p-2 text-brand-dark hover:bg-brand-mist md:inline-flex" aria-label="My account">{% icon "user" "h-5 w-5" %}</a>
+      <a href="{% donate_href 'HEADER' %}" data-donate data-appeal="HEADER" class="btn-donate ml-1 hidden whitespace-nowrap px-5 py-2.5 sm:inline-flex">Donate Now</a>
+      <button type="button" class="rounded-full p-2 text-brand-dark hover:bg-brand-mist min-[1280px]:hidden" @click="mobile = true" aria-label="Open menu">
+        {% icon "menu" "h-6 w-6" %}
+      </button>
+    </div>
+  </div>
+
+  {# Mega menu panels #}
+  {% for item in menu %}
+    <div id="mega-{{ forloop.counter }}" x-cloak x-show="open === {{ forloop.counter }}" x-transition.opacity
+         class="absolute inset-x-0 top-full hidden border-t border-line bg-white shadow-xl min-[1280px]:block">
+      <div class="container-site grid grid-cols-12 gap-8 py-8" {% if item.panel == "regions" %}x-data="{ region: 0 }"{% endif %}>
+        <div class="col-span-4 border-r border-line pr-6">
+          <a href="{{ item.href }}" class="mb-4 inline-flex items-center gap-2 font-display text-xl font-extrabold text-brand-dark no-underline hover:text-brand">{{ item.label }} {% icon "arrow-right" "h-5 w-5" %}</a>
+          {% if item.panel == "regions" %}
+            <ul class="space-y-1" role="tablist" aria-label="Regions">
+              {% for region in item.regions %}
+                <li><button type="button" role="tab" @click="region = {{ forloop.counter0 }}" :aria-selected="region === {{ forloop.counter0 }}"
+                            class="w-full rounded px-3 py-2 text-left font-display font-semibold"
+                            :class="region === {{ forloop.counter0 }} ? 'bg-brand-mist text-brand' : 'text-brand-dark hover:bg-brand-mist'">{{ region.name }}</button></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <ul class="mt-2 space-y-1">
+            {% for link in item.left_links %}
+              <li>
+                <a href="{{ link.href }}" class="block rounded px-3 py-1.5 font-semibold text-brand-dark no-underline hover:bg-brand-mist hover:text-brand">{{ link.label }}</a>
+                {% if link.children %}
+                  <ul class="mb-2 ml-3 border-l border-line pl-3">
+                    {% for child in link.children %}<li><a href="{{ child.href }}" class="block py-1 text-sm text-muted no-underline hover:text-brand">{{ child.label }}</a></li>{% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-span-8">
+          {% if item.panel == "regions" %}
+            {% for region in item.regions %}
+              <div x-show="region === {{ forloop.counter0 }}" role="tabpanel">
+                <h3 class="mb-4 text-lg">{{ region.name }}</h3>
+                <ul class="grid grid-cols-3 gap-x-6 gap-y-2">
+                  {% for c in region.countries %}<li><a href="{{ c.href }}" class="text-brand-dark no-underline hover:text-brand">{{ c.name }}</a></li>{% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          {% elif item.panel == "stories" %}
+            <div class="grid grid-cols-2 gap-6">
+              {% for card in item.cards %}
+                <a href="{{ card.href }}" class="group block rounded-lg border border-line p-4 no-underline hover:border-brand">
+                  <div class="card-title group-hover:text-brand">{{ card.title }}</div>
+                  <p class="mt-1 line-clamp-2 text-sm text-muted">{{ card.text }}</p>
+                  <span class="link-arrow mt-2">Read more {% icon "arrow-right" "h-4 w-4" %}</span>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="grid grid-cols-{% if item.cards|length >= 3 %}3{% else %}2{% endif %} gap-6">
+              {% for card in item.cards %}
+                <a href="{{ card.href }}" class="card group no-underline">
+                  {% if card.image %}{% image card.image fill-480x280 class="card-img" %}{% else %}<div class="card-img bg-brand-mist"></div>{% endif %}
+                  <div class="card-body">
+                    <div class="card-title group-hover:text-brand">{{ card.title }}</div>
+                    {% if card.text %}<p class="line-clamp-2 text-sm text-muted">{{ card.text }}</p>{% endif %}
+                    <span class="link-arrow mt-auto">{{ card.button }} {% icon "arrow-right" "h-4 w-4" %}</span>
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+            {% if item.panel == "emergencies" %}
+              <a href="{% if org.emergencies_page %}{% pageurl org.emergencies_page %}{% else %}{{ item.href }}{% endif %}" class="link-arrow mt-6">View all emergencies {% icon "arrow-right" "h-4 w-4" %}</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  {# Mobile drawer #}
+  <div x-cloak x-show="mobile" class="fixed inset-0 z-[60] min-[1280px]:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="absolute inset-0 bg-brand-dark/60" @click="mobile = false" x-show="mobile" x-transition.opacity></div>
+    <div class="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col overflow-y-auto bg-white" x-show="mobile"
+         x-transition:enter="transition duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+         x-trap.noscroll="mobile">
+      <div class="flex items-center justify-between border-b border-line px-4 py-3">
+        <span class="font-display font-extrabold text-brand-dark">Menu</span>
+        <button type="button" class="rounded-full p-2 hover:bg-brand-mist" @click="mobile = false" aria-label="Close menu">{% icon "x" "h-6 w-6" %}</button>
+      </div>
+      <ul class="divide-y divide-line">
+        {% for item in menu %}
+          <li x-data="{ sub: false }">
+            <button type="button" class="flex w-full items-center justify-between px-4 py-4 font-display font-bold text-brand-dark" @click="sub = !sub" :aria-expanded="sub">
+              {{ item.label }} <span :class="sub ? 'rotate-180' : ''" class="transition">{% icon "chevron-down" "h-5 w-5" %}</span>
+            </button>
+            <div x-show="sub" x-collapse class="bg-brand-mist/60 px-4 pb-4">
+              <a href="{{ item.href }}" class="block py-2 font-semibold text-brand no-underline">{{ item.label }} overview</a>
+              {% for link in item.left_links %}
+                <a href="{{ link.href }}" class="block py-2 text-brand-dark no-underline">{{ link.label }}</a>
+                {% for child in link.children %}<a href="{{ child.href }}" class="block py-1.5 pl-4 text-sm text-muted no-underline">{{ child.label }}</a>{% endfor %}
+              {% endfor %}
+              {% for region in item.regions %}
+                <p class="mt-3 font-display text-xs font-bold uppercase tracking-widest text-muted">{{ region.name }}</p>
+                {% for c in region.countries %}<a href="{{ c.href }}" class="block py-1.5 text-brand-dark no-underline">{{ c.name }}</a>{% endfor %}
+              {% endfor %}
+            </div>
+          </li>
+        {% endfor %}
+        <li><a href="{% if user.is_authenticated %}{% url 'account_dashboard' %}{% else %}{% url 'account_login' %}{% endif %}" class="flex items-center gap-2 px-4 py-4 font-display font-bold text-brand-dark no-underline">{% icon "user" "h-5 w-5" %} My account</a></li>
+      </ul>
+      <div class="mt-auto p-4">
+        <a href="{% donate_href 'MOBILE-MENU' %}" data-donate data-appeal="MOBILE-MENU" class="btn-donate w-full">Donate Now</a>
+      </div>
+    </div>
+  </div>
+</header>

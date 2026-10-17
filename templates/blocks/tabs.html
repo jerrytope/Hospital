@@ -1,0 +1,23 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+<section class="section" x-data="{ tab: 0 }">
+  <div class="container-site">
+    {% if value.heading %}<h2 class="h-section mb-8">{{ value.heading }}</h2>{% endif %}
+    <div class="flex gap-2 overflow-x-auto border-b border-line" role="tablist" aria-label="{{ value.heading|default:'Tabs' }}">
+      {% for t in value.tabs %}
+        <button type="button" role="tab" id="tab-{{ block.id }}-{{ forloop.counter0 }}" aria-controls="panel-{{ block.id }}-{{ forloop.counter0 }}"
+                :aria-selected="tab === {{ forloop.counter0 }}" @click="tab = {{ forloop.counter0 }}"
+                class="-mb-px shrink-0 border-b-4 px-4 py-3 font-display text-sm font-bold uppercase tracking-wider"
+                :class="tab === {{ forloop.counter0 }} ? 'border-accent text-brand-dark' : 'border-transparent text-muted hover:text-brand-dark'">{{ t.title }}</button>
+      {% endfor %}
+    </div>
+    {% for t in value.tabs %}
+      <div role="tabpanel" id="panel-{{ block.id }}-{{ forloop.counter0 }}" aria-labelledby="tab-{{ block.id }}-{{ forloop.counter0 }}"
+           x-show="tab === {{ forloop.counter0 }}" {% if not forloop.first %}x-cloak{% endif %} class="grid gap-8 py-8 md:grid-cols-5">
+        <div class="prose-site md:col-span-3">{{ t.body|richtext }}
+          {% if t.link and t.link|href %}<p><a href="{{ t.link|href }}" class="btn-primary not-prose mt-4 no-underline">{{ t.link|linktext }}</a></p>{% endif %}
+        </div>
+        {% if t.image %}<div class="md:col-span-2">{% image t.image fill-640x480 format-webp class="w-full rounded-lg" loading="lazy" %}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>

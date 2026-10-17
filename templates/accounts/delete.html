@@ -1,0 +1,22 @@
+{% extends "accounts/_layout.html" %}
+{% block title %}Delete account{% endblock %}
+{% block account_title %}Delete my account{% endblock %}
+{% block account_content %}
+{% if blockers %}
+  <div class="rounded-lg bg-warn/10 p-6"><p class="font-semibold">Before you can delete your account:</p><ul class="mt-2 list-disc pl-6">{% for b in blockers %}<li>{{ b }}</li>{% endfor %}</ul></div>
+{% else %}
+<div class="rounded-lg border-2 border-danger p-6">
+  <p>Deleting your account will:</p>
+  <ul class="mt-2 list-disc pl-6 text-muted">
+    <li>cancel any monthly gifts,</li>
+    <li>remove your name, email and address from our records and unsubscribe you,</li>
+    <li>keep anonymous records of past gifts, as the law requires for our accounts.</li>
+  </ul>
+  <form method="post" class="mt-6 space-y-3">{% csrf_token %}
+    <label class="field-label" for="confirm">Type DELETE to confirm</label>
+    <input id="confirm" name="confirm" class="field max-w-xs" autocomplete="off">
+    <button class="btn border-2 border-danger text-danger hover:bg-danger hover:text-white">Delete my account permanently</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Giving overview{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Giving overview" icon="pick" %}{% endblock %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+{% if fake_mode %}<p class="help-block help-warning">Test mode is on: payments use the offline test checkout, not real cards.</p>{% endif %}
+<div class="hm-grid">
+  <div class="hm-card"><h3>Today</h3><div class="v">{{ stats.today }}</div></div>
+  <div class="hm-card"><h3>Last 7 days</h3><div class="v">{{ stats.week }}</div></div>
+  <div class="hm-card"><h3>Last 30 days</h3><div class="v">{{ stats.month }}</div><span class="hm-muted">{{ stats.gifts_30d }} gifts</span></div>
+  <div class="hm-card"><h3>Active monthly</h3><div class="v">{{ stats.active_monthly }}</div><span class="hm-muted">{{ stats.past_due }} past due</span></div>
+  <div class="hm-card"><h3>Bank transfers to check</h3><div class="v">{{ stats.pending_bank }}</div><a href="{% url 'dashboard_bank_transfers' %}">Open queue</a></div>
+  <div class="hm-card"><h3>New subscribers (30d)</h3><div class="v">{{ stats.new_subscribers_30d }}</div></div>
+</div>
+
+<h2 class="w-h2">Top appeal codes (last 30 days)</h2>
+<table class="hm-table"><thead><tr><th>Appeal code</th><th>Gifts</th><th>Total</th></tr></thead><tbody>
+{% for row in stats.top_appeals %}<tr><td>{{ row.appeal_code|default:"(none)" }}</td><td>{{ row.gifts }}</td><td>{{ row.display }}</td></tr>
+{% empty %}<tr><td colspan="3" class="hm-muted">No gifts yet.</td></tr>{% endfor %}
+</tbody></table>
+<p><a class="button button-secondary" href="{% url 'dashboard_appeals_report' %}">Appeals report with date range</a></p>
+
+<h2 class="w-h2">Emergency funds (all time)</h2>
+<table class="hm-table"><thead><tr><th>Emergency</th><th>Gifts</th><th>Total</th></tr></thead><tbody>
+{% for row in emergencies %}<tr><td>{{ row.emergency__title }}</td><td>{{ row.gifts }}</td><td>{{ row.display }}</td></tr>
+{% empty %}<tr><td colspan="3" class="hm-muted">No emergency-designated gifts yet.</td></tr>{% endfor %}
+</tbody></table>
+
+<h2 class="w-h2">Latest gifts</h2>
+<table class="hm-table"><thead><tr><th>Reference</th><th>Donor</th><th>Amount</th><th>Method</th><th>Appeal</th><th>Paid</th></tr></thead><tbody>
+{% for d in recent %}<tr><td>{{ d.reference }}</td><td>{{ d.donor_name }}<br><span class="hm-muted">{{ d.email }}</span></td><td>{{ d.display_amount }}{% if d.frequency == "monthly" %} <span class="hm-badge">monthly</span>{% endif %}</td><td>{{ d.get_provider_display }}</td><td>{{ d.appeal_code|default:"-" }}</td><td>{{ d.paid_at|date:"j M Y H:i" }}</td></tr>
+{% empty %}<tr><td colspan="6" class="hm-muted">No gifts yet.</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

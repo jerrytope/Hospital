@@ -1,0 +1,13 @@
+{% load site_tags %}
+<section class="bg-brand-dark">
+  <div class="container-site flex flex-col items-start gap-6 py-12 md:flex-row md:items-center md:justify-between md:py-16">
+    <div class="max-w-2xl">
+      <h2 class="text-3xl text-white md:text-4xl">{{ heading|default:"Your gift can save lives" }}</h2>
+      {% if text %}<p class="mt-3 text-lg text-white/85">{{ text }}</p>{% endif %}
+    </div>
+    <div class="flex shrink-0 flex-wrap gap-3">
+      <a href="{% donate_href appeal emergency=emergency %}" data-donate class="btn-donate px-8 py-4 text-base">{{ button|default:"Donate now" }}</a>
+      {% if show_monthly %}<a href="{% donate_href appeal emergency=emergency frequency='monthly' %}" data-donate class="btn-ghost-white px-8 py-4 text-base">Give monthly</a>{% endif %}
+    </div>
+  </div>
+</section>

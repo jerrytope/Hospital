@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}Test payment{% endblock %}
+{% block content %}
+<section class="section"><div class="container-site max-w-lg">
+  <div class="rounded-2xl border-4 border-dashed border-warn p-8 text-center">
+    <p class="font-display text-sm font-bold uppercase tracking-widest text-warn">Test mode: no real money</p>
+    <h1 class="mt-3 text-2xl">Pay {{ donation.display_amount }}{% if donation.frequency == "monthly" %} monthly{% endif %}</h1>
+    <p class="mt-2 text-muted">{{ donation.donor_name }} · {{ donation.email }}<br>Reference {{ donation.reference }}</p>
+    <form method="post" class="mt-6 flex flex-col gap-3">
+      {% csrf_token %}
+      <button type="submit" name="outcome" value="pay" class="btn-donate w-full">Approve test payment</button>
+      <button type="submit" name="outcome" value="decline" class="btn-outline w-full">Decline (simulate failed card)</button>
+    </form>
+  </div>
+</div></section>
+{% endblock %}

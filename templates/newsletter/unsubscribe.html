@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Unsubscribe{% endblock %}
+{% block prefooter %}{% endblock %}
+{% block content %}
+<section class="section"><div class="container-site max-w-xl text-center">
+  {% if not subscriber %}<h1 class="text-3xl">This link has expired</h1><p class="mt-3 text-muted">Please use the link in a more recent email, or contact us.</p>
+  {% elif done or subscriber.status == "unsubscribed" %}<h1 class="text-3xl">You've been unsubscribed</h1><p class="mt-3 text-muted">{{ subscriber.email }} won't receive our newsletter any more. Receipts for any gifts will still be sent.</p>
+  {% else %}<h1 class="text-3xl">Unsubscribe {{ subscriber.email }}?</h1><p class="mt-3 text-muted">You'll stop receiving news and appeals from us.</p>
+    <form method="post" class="mt-6">{% csrf_token %}<button class="btn-primary">Yes, unsubscribe me</button></form>{% endif %}
+</div></section>
+{% endblock %}

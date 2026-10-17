@@ -1,0 +1,12 @@
+{% extends "accounts/_layout.html" %}
+{% block title %}Gift orders{% endblock %}
+{% block account_title %}Gift orders{% endblock %}
+{% block account_content %}
+{% for o in orders %}
+  <article class="mb-4 rounded-lg border border-line p-5">
+    <div class="flex flex-wrap justify-between gap-2"><p class="font-display font-bold text-brand-dark">{{ o.reference }} · {{ o.display_total }}</p><span class="text-sm text-muted">{{ o.created_at|date:"j M Y" }} · {{ o.get_status_display }}</span></div>
+    <ul class="mt-2 text-muted">{% for l in o.lines.all %}<li>{{ l.quantity }} × {{ l.title }}</li>{% endfor %}</ul>
+    {% for c in o.ecards.all %}<p class="mt-2 text-sm">E-card to {{ c.recipient_email }}: {{ c.get_status_display }} <a href="{% url 'account_ecards' %}" class="underline">manage</a></p>{% endfor %}
+  </article>
+{% empty %}<p class="rounded-lg bg-brand-mist p-6 text-muted">No gift orders yet.</p>{% endfor %}
+{% endblock %}

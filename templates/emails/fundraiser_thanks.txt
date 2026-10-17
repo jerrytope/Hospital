@@ -1,0 +1,4 @@
+{{ note }}
+
+— {{ fundraiser.owner.get_full_name|default:"Your fundraiser" }}, for "{{ fundraiser.title }}"
+{{ SITE_URL }}{{ fundraiser.get_absolute_url }}

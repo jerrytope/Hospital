@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Start a fundraiser{% endblock %}
+{% block content %}
+<section class="bg-brand-dark"><div class="container-site py-16 text-white md:py-24">
+  <p class="eyebrow text-brand-light">Fundraise for us</p>
+  <h1 class="mt-2 max-w-3xl text-4xl text-white md:text-5xl">Turn your birthday, race or special day into life-saving care</h1>
+  <p class="mt-4 max-w-2xl text-lg text-white/85">Create your own page in minutes, set a goal and share it with friends. Every gift goes straight to our emergency work.</p>
+  <div class="mt-8 flex flex-wrap gap-3"><a href="{% url 'account_signup' %}?next={% url 'account_fundraiser_create' %}" class="btn-donate">Create my page</a><a href="{% url 'account_login' %}?next={% url 'account_fundraiser_create' %}" class="btn-ghost-white">I already have an account</a></div>
+</div></section>
+<section class="section"><div class="container-site grid gap-8 md:grid-cols-3">
+  <div><p class="font-display text-5xl font-extrabold text-accent">1</p><h2 class="mt-2 text-xl">Set up your page</h2><p class="mt-2 text-muted">Add a title, photo, your story and a goal.</p></div>
+  <div><p class="font-display text-5xl font-extrabold text-accent">2</p><h2 class="mt-2 text-xl">We take a quick look</h2><p class="mt-2 text-muted">Our team checks new pages, usually within a day.</p></div>
+  <div><p class="font-display text-5xl font-extrabold text-accent">3</p><h2 class="mt-2 text-xl">Share and celebrate</h2><p class="mt-2 text-muted">Share your link, post updates and thank your donors.</p></div>
+</div></section>
+{% endblock %}

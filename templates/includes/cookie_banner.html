@@ -1,0 +1,14 @@
+{% load wagtailcore_tags %}
+<div id="cookie-banner" class="fixed inset-x-0 bottom-0 z-[70] border-t border-line bg-white shadow-2xl" role="region" aria-label="Cookie consent">
+  <form method="post" action="{% url 'cookie_consent' %}" hx-post="{% url 'cookie_consent' %}" hx-target="#cookie-banner" hx-swap="outerHTML"
+        class="container-site flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <p class="text-sm text-ink">{{ org.cookie_banner_text }}
+      {% if org.cookie_page %}<a href="{% pageurl org.cookie_page %}" class="underline">Cookie policy</a>{% endif %}</p>
+    <div class="flex shrink-0 gap-2">
+      <button type="submit" name="choice" value="rejected" class="btn-outline px-5 py-2">Decline</button>
+      <button type="submit" name="choice" value="accepted" class="btn-primary px-5 py-2">Accept</button>
+    </div>
+  </form>
+</div>

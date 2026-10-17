@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}{{ fundraiser.title }}{% endblock %}
+{% block content %}
+{% if not fundraiser.is_public %}<div class="bg-warn/20"><div class="container-site py-3 text-sm font-semibold">Preview: this page is {{ fundraiser.get_status_display|lower }} and not visible to the public yet.</div></div>{% endif %}
+<section class="section">
+  <div class="container-site grid gap-10 lg:grid-cols-12">
+    <div class="lg:col-span-7">
+      {% if fundraiser.photo %}<img src="{{ fundraiser.photo.url }}" alt="" class="w-full rounded-lg">{% endif %}
+      <h1 class="mt-6 text-3xl md:text-4xl">{{ fundraiser.title }}</h1>
+      <p class="mt-2 text-muted">Organised by {{ fundraiser.owner.get_full_name|default:"a supporter" }}{% if fundraiser.emergency %} · for <a href="{{ fundraiser.emergency.url }}">{{ fundraiser.emergency.title }}</a>{% endif %}</p>
+      <div class="prose-site mt-6">{{ fundraiser.story|linebreaks }}</div>
+      {% if updates %}
+        <h2 class="mt-10 text-2xl">Updates</h2>
+        {% for u in updates %}<div class="mt-4 rounded-lg border border-line p-4"><p class="text-sm text-muted">{{ u.created_at|date:"j M Y" }}</p><p class="mt-1">{{ u.text|linebreaksbr }}</p>{% if u.photo %}<img src="{{ u.photo.url }}" alt="" class="mt-3 rounded" loading="lazy">{% endif %}</div>{% endfor %}
+      {% endif %}
+    </div>
+    <aside class="lg:col-span-5">
+      <div class="sticky top-28 rounded-lg bg-white p-6 shadow-card">
+        <p class="font-display text-3xl font-extrabold text-brand-dark">{{ fundraiser.display_raised }}</p>
+        <p class="text-muted">raised of {{ fundraiser.display_goal }} goal</p>
+        <div class="mt-3 h-3 rounded-full bg-brand-mist" role="progressbar" aria-valuenow="{{ fundraiser.percent }}" aria-valuemin="0" aria-valuemax="100"><div class="h-3 rounded-full bg-accent" style="width: {{ fundraiser.percent }}%"></div></div>
+        <p class="mt-2 text-sm text-muted">{{ fundraiser.donor_count }} donor{{ fundraiser.donor_count|pluralize }}{% if fundraiser.end_date %} · ends {{ fundraiser.end_date|date:"j M Y" }}{% endif %}</p>
+        {% if fundraiser.is_accepting %}
+          <a href="{% donate_href 'FUNDRAISER' fundraiser=fundraiser %}" data-donate class="btn-donate mt-5 w-full py-4 text-base">Donate</a>
+        {% else %}<p class="mt-5 rounded-md bg-brand-mist p-3 text-center font-semibold">This fundraiser has ended. Thank you to everyone who gave!</p>{% endif %}
+        <div class="mt-5"><p class="mb-2 text-sm font-semibold text-muted">Share</p>
+          <div class="flex flex-wrap gap-2">
+            <a class="badge" href="https://wa.me/?text={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="badge" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener">Facebook</a>
+            <a class="badge" href="https://x.com/intent/post?url={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener">X</a>
+            <button type="button" class="badge" data-copy="{{ request.build_absolute_uri }}"><span data-copy-label>Copy link</span></button>
+          </div>
+        </div>
+        {% if donations %}
+          <h2 class="mt-6 text-lg">Recent donors</h2>
+          <ul class="mt-2 space-y-2">{% for d in donations %}<li class="text-sm"><strong>{{ d.public_name }}</strong> · {{ d.display_amount }}{% if d.public_message %}<br><span class="italic text-muted">“{{ d.public_message }}”</span>{% endif %}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if is_owner %}<a href="{% url 'account_fundraiser_manage' fundraiser.pk %}" class="btn-outline mt-6 w-full">Manage my fundraiser</a>{% endif %}
+      </div>
+    </aside>
+  </div>
+  {% if fundraiser.is_public and not is_owner %}
+  <details class="container-site mt-10 max-w-xl text-sm">
+    <summary class="cursor-pointer text-muted">Report this page</summary>
+    <form method="post" action="{% url 'fundraising:report' fundraiser.slug %}" class="mt-3 space-y-3">{% csrf_token %}
+      <div class="honeypot" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+      <label class="field-label" for="r-reason">What's wrong?</label><textarea id="r-reason" name="reason" rows="3" class="field" required></textarea>
+      <label class="field-label" for="r-email">Your email (optional)</label><input id="r-email" type="email" name="reporter_email" class="field">
+      <button class="btn-outline">Send report</button>
+    </form>
+  </details>
+  {% endif %}
+</section>
+{% endblock %}

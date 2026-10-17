@@ -1,0 +1,64 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Fundraisers{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Fundraisers" subtitle="Approve supporters' pages before they go live" icon="group" %}{% endblock %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+<nav class="hm-tabs" aria-label="Filter">
+  <a href="?status=pending" class="{% if status == 'pending' %}on{% endif %}">Awaiting approval ({{ counts.pending|default:0 }})</a>
+  <a href="?status=edited" class="{% if status == 'edited' %}on{% endif %}">Edited since approval ({{ counts.edited|default:0 }})</a>
+  <a href="?status=reported" class="{% if status == 'reported' %}on{% endif %}">Reported ({{ counts.reported|default:0 }})</a>
+  <a href="?status=live" class="{% if status == 'live' %}on{% endif %}">Live ({{ counts.live|default:0 }})</a>
+  <a href="?status=changes" class="{% if status == 'changes' %}on{% endif %}">Changes requested ({{ counts.changes|default:0 }})</a>
+  <a href="?status=hidden" class="{% if status == 'hidden' %}on{% endif %}">Hidden ({{ counts.hidden|default:0 }})</a>
+  <a href="?status=all" class="{% if status == 'all' %}on{% endif %}">All</a>
+</nav>
+<table class="hm-table">
+  <thead><tr><th>Fundraiser</th><th>Owner</th><th>Progress</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for f in fundraisers %}
+    <tr>
+      <td><a href="{{ f.get_absolute_url }}" target="_blank" rel="noopener"><strong>{{ f.title }}</strong></a>
+        <br><span class="hm-badge {% if f.status == 'live' %}ok{% elif f.status == 'pending' or f.status == 'changes' %}warn{% elif f.status == 'hidden' %}bad{% endif %}">{{ f.get_status_display }}</span>
+        {% if f.featured %}<span class="hm-badge">Featured</span>{% endif %}
+        {% if f.edited_since_review %}<span class="hm-badge warn">Edited</span>{% endif %}
+        {% if f.open_reports %}<span class="hm-badge bad">{{ f.open_reports }} report(s)</span>{% endif %}
+        <p class="hm-muted">{{ f.story|truncatechars:220 }}</p>
+        {% if f.emergency %}<span class="hm-muted">For {{ f.emergency.title }}</span>{% endif %}</td>
+      <td>{{ f.owner.get_full_name|default:f.owner.email }}<br><a href="mailto:{{ f.owner.email }}">{{ f.owner.email }}</a></td>
+      <td>{{ f.display_raised }} of {{ f.display_goal }}<br><span class="hm-muted">{{ f.donor_count }} donors{% if f.end_date %} · ends {{ f.end_date|date:"j M Y" }}{% endif %}</span></td>
+      <td>
+        {% if f.status == "pending" or f.status == "changes" %}
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <button class="button button-small" name="action" value="approve">Approve &amp; publish</button></form>
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <input type="text" name="note" placeholder="What needs changing?" aria-label="Changes needed">
+            <button class="button button-small button-secondary" name="action" value="changes">Request changes</button></form>
+        {% endif %}
+        {% if f.edited_since_review %}
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <button class="button button-small button-secondary" name="action" value="reviewed">Mark edits reviewed</button></form>
+        {% endif %}
+        {% if f.open_reports %}
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <button class="button button-small button-secondary" name="action" value="resolve_reports">Resolve reports</button></form>
+        {% endif %}
+        {% if f.status == "live" %}
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <button class="button button-small button-secondary" name="action" value="feature">{% if f.featured %}Unfeature{% else %}Feature{% endif %}</button></form>
+        {% endif %}
+        {% if f.status == "hidden" %}
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <button class="button button-small button-secondary" name="action" value="restore">Restore</button></form>
+        {% else %}
+          <form method="post" action="{% url 'dashboard_fundraiser_action' f.pk %}" class="hm-inline">{% csrf_token %}
+            <input type="text" name="note" placeholder="Reason (optional)" aria-label="Reason for hiding">
+            <button class="button button-small no" name="action" value="hide">Hide</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4" class="hm-muted">No fundraisers here.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

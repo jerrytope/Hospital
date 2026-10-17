@@ -1,0 +1,9 @@
+{% load wagtailcore_tags %}
+{% if query %}
+  {% if results %}
+    <ul class="divide-y divide-white/10">
+      {% for r in results|slice:":6" %}<li><a href="{% pageurl r %}" class="block py-3 text-lg text-white no-underline hover:text-brand-light">{{ r.title }}</a></li>{% endfor %}
+    </ul>
+    <a href="{% url 'search' %}?q={{ query|urlencode }}" class="mt-4 inline-block font-bold text-brand-light">See all {{ page_obj.paginator.count }} results →</a>
+  {% else %}<p class="text-white/70">No results for “{{ query }}”.</p>{% endif %}
+{% endif %}

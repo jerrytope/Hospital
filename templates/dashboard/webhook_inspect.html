@@ -1,0 +1,10 @@
+{% extends "wagtailadmin/generic/inspect.html" %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+<p><strong>{{ object.provider }}</strong> · {{ object.event_type }} · {{ object.event_id }}</p>
+<p>Received {{ object.received_at|date:"j M Y H:i:s" }} · Processed {{ object.processed_at|date:"j M Y H:i:s"|default:"never" }}</p>
+{% if object.error %}<p class="help-block help-critical">{{ object.error }}</p>{% endif %}
+<form method="post" action="{% url 'dashboard_webhook_retry' object.pk %}">{% csrf_token %}<button class="button">Process again</button></form>
+<h2 class="w-h2">Payload</h2>
+<pre style="white-space:pre-wrap;font-size:.8rem;max-height:500px;overflow:auto">{{ object.payload|pprint }}</pre>
+{% endblock %}

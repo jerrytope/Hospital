@@ -1,0 +1,14 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+<article class="card group h-full">
+  <a href="{% pageurl story %}" class="block overflow-hidden" tabindex="-1" aria-hidden="true">
+    {% if story.hero_image %}{% image story.hero_image fill-640x400 format-webp class="card-img transition duration-300 group-hover:scale-105" loading="lazy" %}
+    {% else %}<div class="card-img flex items-center justify-center bg-brand-mist text-brand">{% icon "heart-pulse" "h-10 w-10" %}</div>{% endif %}
+  </a>
+  <div class="card-body">
+    <p class="card-label">{% if story.story_type == "video" %}{% icon "play" "inline h-3 w-3" %} {% endif %}{{ story.type_label }}</p>
+    <h3 class="card-title"><a href="{% pageurl story %}" class="text-brand-dark no-underline hover:text-brand">{{ story.title }}</a></h3>
+    {% if show_date|default:True %}<p class="text-sm text-muted">{{ story.date|date:"F j, Y" }}</p>{% endif %}
+    {% if show_excerpt %}<p class="line-clamp-3 text-base text-muted">{{ story.excerpt }}</p>{% endif %}
+    <a href="{% pageurl story %}" class="link-arrow mt-auto pt-2">{{ link_label|default:"Read more" }} {% icon "arrow-right" "h-4 w-4" %}<span class="sr-only">: {{ story.title }}</span></a>
+  </div>
+</article>

@@ -1,0 +1,12 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>Hello {{ fundraiser.owner.first_name|default:"there" }},</p>
+{% if fundraiser.status == "live" %}<p>Your fundraiser &ldquo;{{ fundraiser.title }}&rdquo; has been approved and is now live. Share it with friends and family:</p>
+<p><a href="{{ SITE_URL }}{{ fundraiser.get_absolute_url }}" style="color:#13599E">{{ SITE_URL }}{{ fundraiser.get_absolute_url }}</a></p>
+{% elif fundraiser.status == "changes" %}<p>Our team has asked for a few changes to your fundraiser &ldquo;{{ fundraiser.title }}&rdquo; before it goes live:</p>
+<blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #E8532B;background:#FFF5F1">{{ fundraiser.staff_note|linebreaksbr }}</blockquote>
+<p><a href="{{ SITE_URL }}/account/fundraisers/" style="color:#13599E">Edit your fundraiser</a></p>
+{% elif fundraiser.status == "hidden" %}<p>Your fundraiser &ldquo;{{ fundraiser.title }}&rdquo; has been hidden by our team.{% if fundraiser.staff_note %} Note: {{ fundraiser.staff_note }}{% endif %}</p>
+{% endif %}
+<p>Thank you for fundraising with us.</p>
+{% endblock %}

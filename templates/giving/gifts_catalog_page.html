@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+<section class="section" x-data="{ currency: '{{ request.session.gift_cart.currency|default:'NGN' }}' }">
+  <div class="container-site grid gap-10 lg:grid-cols-12">
+    <div class="lg:col-span-8">
+      {% if page.intro %}<div class="prose-site mb-8">{{ page.intro|richtext }}</div>{% endif %}
+      <div class="mb-6 flex items-center gap-2" role="group" aria-label="Currency">
+        <span class="text-sm font-semibold text-muted">Show prices in</span>
+        <button type="button" class="badge" :class="currency === 'NGN' ? 'badge-active' : ''" @click="currency = 'NGN'" hx-post="{% url 'giving:cart_update' %}" hx-vals='{"currency": "NGN", "action": "noop"}' hx-target="#gift-cart">NGN</button>
+        <button type="button" class="badge" :class="currency === 'USD' ? 'badge-active' : ''" @click="currency = 'USD'" hx-post="{% url 'giving:cart_update' %}" hx-vals='{"currency": "USD", "action": "noop"}' hx-target="#gift-cart">USD</button>
+      </div>
+      <div class="grid gap-6 sm:grid-cols-2">
+        {% for item in items %}
+          <article class="card">
+            {% if item.image %}{% image item.image fill-640x420 format-webp class="card-img" loading="lazy" %}{% else %}<div class="card-img flex items-center justify-center bg-brand-mist text-brand">{% icon "gift" "h-12 w-12" %}</div>{% endif %}
+            <div class="card-body">
+              <h2 class="card-title">{{ item.title }}</h2>
+              <p class="font-display text-2xl font-extrabold text-accent"><span x-show="currency === 'NGN'">{{ item.price_ngn|money:"NGN" }}</span><span x-show="currency === 'USD'" x-cloak>{{ item.price_usd|money:"USD" }}</span></p>
+              <p class="text-muted">{{ item.blurb }}</p>
+              <button type="button" class="btn-primary mt-auto" hx-post="{% url 'giving:cart_update' %}" hx-vals='{"item": "{{ item.pk }}", "action": "add"}' hx-target="#gift-cart">{% icon "gift" "h-4 w-4" %} Add to basket</button>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+    <aside class="lg:col-span-4">
+      <div class="sticky top-28" id="gift-cart" hx-get="{% url 'giving:cart' %}" hx-trigger="load">
+        <div class="rounded-lg border border-line p-6 text-muted">Loading your basket…</div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% with faqs=page.faqs.all %}
+{% if faqs %}
+<section class="section bg-brand-mist">
+  <div class="container-site max-w-4xl">
+    <h2 class="h-section">{{ page.faq_heading }}</h2>
+    <div class="mt-6 divide-y divide-line border-y border-line bg-white px-4">
+      {% for item in faqs %}
+        <div x-data="{ open: false }">
+          <h3 class="text-lg"><button type="button" class="flex w-full items-center justify-between gap-4 py-5 text-left font-display font-bold text-brand-dark" @click="open = !open" :aria-expanded="open">{{ item.question }} <span class="transition" :class="open ? 'rotate-180' : ''">{% icon "chevron-down" "h-5 w-5" %}</span></button></h3>
+          <div x-show="open" x-collapse x-cloak class="prose-site pb-6">{{ item.answer|richtext }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+{% endblock %}

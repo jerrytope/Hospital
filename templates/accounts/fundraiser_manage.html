@@ -1,0 +1,41 @@
+{% extends "accounts/_layout.html" %}
+{% load site_tags %}
+{% block title %}Manage fundraiser{% endblock %}
+{% block account_title %}{{ fundraiser.title }}{% endblock %}
+{% block account_content %}
+<div class="rounded-lg border border-line p-6">
+  <div class="h-3 rounded-full bg-brand-mist"><div class="h-3 rounded-full bg-accent" style="width: {{ fundraiser.percent }}%"></div></div>
+  <p class="mt-2"><strong class="font-display text-2xl text-brand-dark">{{ fundraiser.display_raised }}</strong> raised of {{ fundraiser.display_goal }} · {{ fundraiser.donor_count }} donors · {{ fundraiser.get_status_display }}</p>
+  {% if fundraiser.is_public %}
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    <input class="field max-w-md" value="{{ share_url }}" readonly aria-label="Share link">
+    <button type="button" class="btn-outline px-4 py-2" data-copy="{{ share_url }}">{% icon "copy" "h-4 w-4" %} <span data-copy-label>Copy link</span></button>
+    <a class="btn-outline px-4 py-2" href="https://wa.me/?text={{ share_url|urlencode }}" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="btn-outline px-4 py-2" href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode }}" target="_blank" rel="noopener">Facebook</a>
+  </div>
+  {% endif %}
+  <div class="mt-4 flex flex-wrap gap-2">
+    <a href="{% url 'account_fundraiser_edit' fundraiser.pk %}" class="btn-outline px-4 py-2">Edit page</a>
+    {% if fundraiser.status == "live" %}<form method="post">{% csrf_token %}<button name="action" value="end" class="btn-outline px-4 py-2" onclick="return confirm('End this fundraiser now?')">End fundraiser</button></form>{% endif %}
+  </div>
+</div>
+
+<h2 class="mt-10 text-xl">Post an update</h2>
+<form method="post" enctype="multipart/form-data" class="auth-form mt-4 space-y-3">{% csrf_token %}<input type="hidden" name="action" value="update">
+  <div><label class="field-label" for="{{ update_form.text.id_for_label }}">Update</label>{{ update_form.text }}{% for e in update_form.text.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+  <div><label class="field-label" for="{{ update_form.photo.id_for_label }}">Photo <span class="font-normal text-muted">(optional)</span></label>{{ update_form.photo }}{% for e in update_form.photo.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+  <button class="btn-primary">Post update</button>
+</form>
+
+<h2 class="mt-10 text-xl">Donors</h2>
+{% if donations %}
+<ul class="mt-4 divide-y divide-line border-y border-line">
+  {% for d in donations %}<li class="flex flex-wrap justify-between gap-2 py-3"><span><strong>{{ d.public_name }}</strong>{% if not d.is_anonymous %} <span class="text-sm text-muted">({{ d.donor_name }})</span>{% endif %}{% if d.public_message %}<br><span class="text-sm italic text-muted">“{{ d.public_message }}”</span>{% endif %}</span><span>{{ d.display_amount }} · {{ d.paid_at|date:"j M" }}</span></li>{% endfor %}
+</ul>
+<form method="post" class="mt-6 space-y-3 rounded-lg bg-brand-mist p-4">{% csrf_token %}<input type="hidden" name="action" value="thank">
+  <label class="field-label" for="thanks">Send a thank-you email to all donors</label>
+  <textarea id="thanks" name="thank_message" rows="4" maxlength="1500" class="field" placeholder="Thank you so much for supporting my fundraiser…"></textarea>
+  <button class="btn-primary">Send thank-you</button>
+</form>
+{% else %}<p class="mt-3 text-muted">No donations yet. Share your page to get started!</p>{% endif %}
+{% endblock %}

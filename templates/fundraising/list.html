@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}Fundraisers{% endblock %}
+{% block content %}
+<section class="bg-brand-dark"><div class="container-site py-16 text-white">
+  <p class="eyebrow text-brand-light">Get involved</p>
+  <h1 class="mt-2 text-4xl text-white md:text-5xl">Supporter fundraisers</h1>
+  <p class="mt-4 max-w-2xl text-lg text-white/85">People everywhere are raising money for families in crisis. Give to a fundraiser or start your own.</p>
+  <a href="{% url 'fundraising:start' %}" class="btn-donate mt-6">Start a fundraiser</a>
+</div></section>
+<section class="section"><div class="container-site grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {% for f in fundraisers %}{% include "fundraising/_card.html" %}{% empty %}<p class="text-muted">No fundraisers are live right now. Be the first!</p>{% endfor %}
+</div></section>
+{% endblock %}

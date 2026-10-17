@@ -1,0 +1,35 @@
+{% extends "accounts/_layout.html" %}
+{% load site_tags %}
+{% block title %}My account{% endblock %}
+{% block account_content %}
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="rounded-lg border border-line p-5"><p class="text-sm uppercase tracking-widest text-muted">Total given</p>
+    <p class="mt-1 font-display text-2xl font-extrabold text-brand-dark">{% for t in totals %}{{ t.total|money:t.currency }}{% if not forloop.last %}<br>{% endif %}{% empty %}—{% endfor %}</p></div>
+  <div class="rounded-lg border border-line p-5"><p class="text-sm uppercase tracking-widest text-muted">Gifts</p><p class="mt-1 font-display text-2xl font-extrabold text-brand-dark">{{ gift_count }}</p></div>
+  <div class="rounded-lg border border-line p-5"><p class="text-sm uppercase tracking-widest text-muted">Scheduled e-cards</p><p class="mt-1 font-display text-2xl font-extrabold text-brand-dark">{{ scheduled_cards }}</p></div>
+</div>
+
+{% if monthly %}
+<h2 class="mt-10 text-xl">Your monthly giving</h2>
+<ul class="mt-4 space-y-3">{% for g in monthly %}<li class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line p-4"><span><strong>{{ g.display_amount }}</strong> a month · {{ g.get_status_display }}{% if g.next_charge_date %} · next on {{ g.next_charge_date|date:"j M Y" }}{% endif %}</span><a href="{% url 'account_monthly' %}" class="link-arrow">Manage</a></li>{% endfor %}</ul>
+{% else %}
+<div class="mt-10 flex flex-col gap-4 rounded-lg bg-brand-mist p-6 md:flex-row md:items-center md:justify-between">
+  <div><h2 class="text-xl">Become a monthly supporter</h2><p class="text-muted">Monthly gifts let us plan ahead and respond the moment disaster strikes.</p></div>
+  <a href="{% donate_href 'ACCOUNT' frequency='monthly' %}" data-donate class="btn-donate shrink-0">Give monthly</a>
+</div>
+{% endif %}
+
+<h2 class="mt-10 text-xl">Recent gifts</h2>
+{% if recent %}
+<ul class="mt-4 divide-y divide-line border-y border-line">
+  {% for d in recent %}<li class="flex flex-wrap items-center justify-between gap-2 py-3"><span>{{ d.paid_at|date:"j M Y" }} · <strong>{{ d.display_amount }}</strong>{% if d.emergency %} · {{ d.emergency.title }}{% endif %}</span><a href="{% url 'account_receipt' d.reference %}" class="link-arrow">{% icon "download" "h-4 w-4" %} Receipt</a></li>{% endfor %}
+</ul>
+<a href="{% url 'account_donations' %}" class="link-arrow mt-4">All donations {% icon "arrow-right" "h-4 w-4" %}</a>
+{% else %}<p class="mt-3 text-muted">You haven't given yet{% if user.emailaddress_set.first and not user.emailaddress_set.first.verified %}, or your earlier gifts are waiting for you to verify your email address{% endif %}.</p>{% endif %}
+
+{% if fundraisers %}
+<h2 class="mt-10 text-xl">Your fundraisers</h2>
+<ul class="mt-4 space-y-3">{% for f in fundraisers %}<li class="rounded-lg border border-line p-4"><div class="flex flex-wrap items-center justify-between gap-2"><strong>{{ f.title }}</strong><span class="text-sm text-muted">{{ f.get_status_display }}</span></div>
+<div class="mt-2 h-2 rounded-full bg-brand-mist"><div class="h-2 rounded-full bg-accent" style="width: {{ f.percent }}%"></div></div><p class="mt-1 text-sm text-muted">{{ f.display_raised }} of {{ f.display_goal }}</p></li>{% endfor %}</ul>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% load wagtailcore_tags site_tags %}
+<div id="{{ value.heading|slugify_id }}" class="scroll-mt-40 border-t border-line pt-10">
+  <h3 class="text-2xl md:text-3xl">{{ value.heading }}</h3>
+  {% if value.intro %}<div class="prose-site mt-4">{{ value.intro|richtext }}</div>{% endif %}
+  {% for s in value.sections %}
+    <div class="mt-6">
+      <h4 class="text-lg text-brand">{{ s.heading }}</h4>
+      <div class="prose-site mt-2">{{ s.text|richtext }}</div>
+    </div>
+  {% endfor %}
+</div>

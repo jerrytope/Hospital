@@ -1,0 +1,10 @@
+{% extends "accounts/_layout.html" %}
+{% block title %}Email preferences{% endblock %}
+{% block account_title %}Email preferences{% endblock %}
+{% block account_content %}
+<form method="post" class="space-y-4 rounded-lg border border-line p-6">{% csrf_token %}
+  <label class="flex items-start gap-3"><input type="checkbox" name="newsletter" {% if subscribed %}checked{% endif %} class="mt-1">
+    <span><span class="font-semibold text-brand-dark">News, emergency appeals and stories of hope</span><br><span class="text-sm text-muted">About two emails a month. Receipts and account emails are always sent.</span></span></label>
+  <button class="btn-primary">Save preferences</button>
+</form>
+{% endblock %}

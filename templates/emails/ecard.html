@@ -1,0 +1,13 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<div style="border-radius:8px;padding:28px;text-align:center;color:#ffffff;background:{% if card.design == "bloom" %}#2E9E6B{% elif card.design == "light" %}#C98A12{% else %}#13599E{% endif %}">
+<p style="margin:0;font-size:14px;letter-spacing:2px;text-transform:uppercase">{% if card.card_type == "memory" %}In loving memory of{% elif card.card_type == "honor" %}In honour of{% else %}A gift for you{% endif %}</p>
+<p style="margin:8px 0 0;font-size:28px;font-weight:bold">{% if card.card_type == "gift" %}{{ card.recipient_name }}{% else %}{{ card.honoree_name }}{% endif %}</p>
+</div>
+<p style="margin-top:24px">Dear {{ card.recipient_name }},</p>
+<p><strong>{{ card.sender_name }}</strong> has made a gift to {{ org.name }} {% if card.card_type == "memory" %}in memory of {{ card.honoree_name }}{% elif card.card_type == "honor" %}in honour of {{ card.honoree_name|default:"you" }}{% else %}on your behalf{% endif %}.{% if card.gift_order %} Their gift provides:{% endif %}</p>
+{% if card.gift_order %}<ul>{% for line in card.gift_order.lines.all %}<li>{{ line.quantity }} &times; {{ line.title }}</li>{% endfor %}</ul>{% endif %}
+{% if card.message %}<blockquote style="margin:16px 0;padding:12px 16px;border-left:4px solid #22A6D8;background:#EEF4FA;font-style:italic">{{ card.message|linebreaksbr }}</blockquote>{% endif %}
+<p>This gift helps us bring medical care, clean water and hope to families facing crisis. The amount given stays private.</p>
+<p><a href="{{ SITE_URL }}" style="color:#13599E">Learn about our work</a></p>
+{% endblock %}

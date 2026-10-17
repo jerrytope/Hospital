@@ -1,0 +1,7 @@
+Dear {{ notice.first_name }},
+
+Thank you for letting us know about your bank transfer of {{ notice.display_amount }} (our reference {{ notice.reference }}).
+
+Our team will match it against our bank statement, usually within 2 working days. As soon as it is confirmed we will email your official receipt.
+
+The {{ org.name }} team

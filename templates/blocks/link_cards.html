@@ -1,0 +1,17 @@
+{% load wagtailimages_tags site_tags %}
+<section class="container-site py-10">
+  <div class="grid gap-6 md:grid-cols-{{ value.cards|length }}">
+    {% for card in value.cards %}
+      <a href="{{ card.link|href|default:'#' }}" class="group relative isolate flex min-h-[260px] items-end overflow-hidden rounded-lg bg-brand-dark p-8 no-underline">
+        {% if card.image %}{% image card.image fill-900x520 format-webp class="absolute inset-0 -z-10 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105" loading="lazy" %}{% endif %}
+        <div class="absolute inset-0 -z-10 bg-gradient-to-t from-brand-dark/90 to-transparent"></div>
+        <div>
+          {% if card.label %}<p class="eyebrow text-brand-light">{{ card.label }}</p>{% endif %}
+          <h3 class="text-2xl text-white md:text-3xl">{{ card.title }}</h3>
+          {% if card.text %}<p class="mt-2 text-white/85">{{ card.text }}</p>{% endif %}
+          <span class="mt-4 inline-flex items-center gap-1 font-display text-sm font-bold uppercase tracking-wider text-white">{{ card.link|linktext:"Explore" }} {% icon "arrow-right" "h-4 w-4" %}</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>

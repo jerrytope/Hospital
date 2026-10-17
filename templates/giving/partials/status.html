@@ -1,0 +1,29 @@
+{% load wagtailcore_tags site_tags %}
+<div id="donation-status" {% if donation.status == "pending" %}hx-get="{% url 'giving:status' donation.reference %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %} aria-live="polite">
+  {% if donation.status == "succeeded" %}
+    <div class="text-center">
+      <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-ok/10 text-ok">{% icon "check" "h-8 w-8" %}</span>
+      <h1 class="mt-4 text-3xl md:text-4xl">{{ ds.thank_you_heading }}, {{ donation.first_name }}!</h1>
+      <p class="mt-2 text-xl font-semibold text-brand-dark">{{ donation.display_amount }}{% if donation.frequency == "monthly" %} every month{% endif %}</p>
+      <div class="prose-site mx-auto mt-4 text-base">{{ ds.thank_you_text|richtext }}</div>
+      <p class="mt-2 text-sm text-muted">Reference {{ donation.reference }}</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        {% if not user.is_authenticated %}<a href="{% url 'account_signup' %}?email={{ donation.email|urlencode }}" class="btn-primary">Create an account to manage your giving</a>{% else %}<a href="{% url 'account_donations' %}" class="btn-primary">See my donations</a>{% endif %}
+        {% if donation.fundraiser %}<a href="{{ donation.fundraiser.get_absolute_url }}" class="btn-outline">Back to the fundraiser</a>{% else %}<a href="/" class="btn-outline">Back to home</a>{% endif %}
+      </div>
+    </div>
+  {% elif donation.status == "pending" %}
+    <div class="text-center">
+      <span class="mx-auto block h-12 w-12 animate-spin rounded-full border-4 border-brand-mist border-t-brand" aria-hidden="true"></span>
+      <h1 class="mt-6 text-2xl">Confirming your gift…</h1>
+      <p class="mt-2 text-muted">This usually takes a few seconds. Please keep this page open.</p>
+    </div>
+  {% else %}
+    <div class="text-center">
+      <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger">{% icon "x" "h-8 w-8" %}</span>
+      <h1 class="mt-4 text-2xl">Your payment didn't go through</h1>
+      <p class="mt-2 text-muted">No money was taken. You can try again, use a different card, or give by bank transfer.</p>
+      <a href="{% url 'giving:donate' %}?appeal={{ donation.appeal_code }}{% if donation.emergency %}&emergency={{ donation.emergency.pk }}{% endif %}" class="btn-donate mt-6">Try again</a>
+    </div>
+  {% endif %}
+</div>

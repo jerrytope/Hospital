@@ -1,0 +1,62 @@
+{% load static wagtailcore_tags wagtailuserbar site_tags %}<!doctype html>
+<html lang="en">
+{% with org=settings.core.OrganisationSettings %}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% if page.seo_title %}{{ page.seo_title }}{% elif page.title %}{{ page.title }}{% endif %}{% endblock %} | {{ org.name }}</title>
+  {% include "includes/seo_meta.html" %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Noto+Serif:ital@1&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  {% block extra_head %}{% endblock %}
+  <script defer src="{% static 'vendor/alpine-collapse.min.js' %}"></script>
+  <script defer src="{% static 'vendor/alpine-focus.min.js' %}"></script>
+  <script defer src="{% static 'js/site.js' %}"></script>
+  <script defer src="{% static 'vendor/alpine.min.js' %}"></script>
+  <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
+  {% if TURNSTILE_SITE_KEY %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}
+  {% if cookie_consent == "accepted" %}{% include "includes/analytics.html" %}{% endif %}
+</head>
+<body class="{% block body_class %}{% endblock %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {% include "includes/icon_sprite.html" %}
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2">Skip to content</a>
+
+  {% if org.alert_enabled and org.alert_text %}
+    <div class="bg-brand-dark text-white">
+      <div class="container-site flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-2 text-center text-sm font-semibold">
+        <span>{% icon "siren" "h-4 w-4 text-accent" %} {{ org.alert_text }}</span>
+        {% if org.alert_link %}<a href="{% pageurl org.alert_link %}" class="text-brand-light underline">Find out more</a>{% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% block header %}{% include "includes/header.html" %}{% endblock %}
+
+  <main id="main" tabindex="-1">
+    {% if messages %}
+      <div class="container-site mt-4 space-y-2" role="status">
+        {% for message in messages %}
+          <div class="rounded-md border px-4 py-3 text-sm {% if message.tags == 'error' %}border-danger bg-red-50 text-danger{% else %}border-ok bg-green-50 text-ok{% endif %}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="{% block main_class %}{% endblock %}">{% block content %}{% endblock %}</div>
+  </main>
+
+  {% block prefooter %}{% include "includes/prefooter.html" %}{% endblock %}
+  {% include "includes/footer.html" %}
+
+  {# Sticky mobile donate button #}
+  <a href="{% donate_href 'MOBILE-STICKY' %}" data-donate data-appeal="MOBILE-STICKY"
+     class="btn-donate fixed bottom-4 right-4 z-40 md:hidden">{% icon "heart" "h-4 w-4" %} Donate</a>
+
+  {% include "includes/search_overlay.html" %}
+  <div id="modal-root"></div>
+  {% if not cookie_consent %}{% include "includes/cookie_banner.html" %}{% endif %}
+  {% wagtailuserbar "bottom-left" %}
+  {% block extra_js %}{% endblock %}
+</body>
+{% endwith %}
+</html>

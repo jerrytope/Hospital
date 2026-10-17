@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% if page.intro %}<div class="container-site pt-12"><div class="prose-site max-w-3xl">{{ page.intro|richtext }}</div></div>{% endif %}
+
+{% if active %}
+<section class="section">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.active_heading }}</h2>
+    <div class="mt-8 space-y-6">
+      {% for e in active %}
+        <article class="grid overflow-hidden rounded-lg border border-line md:grid-cols-3">
+          {% if e.hero_image %}{% image e.hero_image fill-640x420 format-webp class="h-full w-full object-cover" loading="lazy" %}{% else %}<div class="bg-brand-mist"></div>{% endif %}
+          <div class="p-6 md:col-span-2">
+            <p class="card-label text-accent">Active · {{ e.year_label }}</p>
+            <h3 class="mt-1 text-2xl"><a href="{% pageurl e %}" class="text-brand-dark no-underline hover:text-brand">{{ e.title }}</a></h3>
+            <p class="mt-2 text-muted">{{ e.card_summary|default:e.hero_intro }}</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+              <a href="{% pageurl e %}" class="btn-outline">Read more</a>
+              <a href="{% donate_href e.appeal_code emergency=e %}" data-donate class="btn-donate">Donate</a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if ongoing %}
+<section class="section bg-brand-mist">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.ongoing_heading }}</h2>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {% for e in ongoing %}
+        <article class="flex flex-col rounded-lg bg-white p-5 shadow-card">
+          <span class="self-start rounded-full bg-brand-dark px-3 py-1 font-display text-xs font-bold uppercase tracking-widest text-white">{{ e.year_label }}</span>
+          <p class="mt-3 text-sm font-semibold text-muted">{% for c in e.countries.all %}{{ c.title }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+          <h3 class="card-title mt-1">{{ e.title }}</h3>
+          <a href="{% pageurl e %}" class="link-arrow mt-auto pt-3">Learn more {% icon "arrow-right" "h-4 w-4" %}</a>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if past_rows %}
+<section class="section" x-data="{ all: false }">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.past_heading }}</h2>
+    <div class="mt-6 overflow-x-auto">
+      <table class="table-site">
+        <thead><tr><th scope="col">Country</th><th scope="col">Emergency</th><th scope="col">Year</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead>
+        <tbody>
+          {% for row in past_rows %}
+            <tr x-data="{ open: false }" {% if forloop.counter > page.initial_past_rows %}x-show="all" x-cloak{% endif %}>
+              <td class="font-semibold">{{ row.country }}</td>
+              <td>{{ row.name }}
+                {% if not row.page and row.details %}<div x-show="open" x-collapse x-cloak class="prose-site mt-2 text-base">{{ row.details|richtext }}</div>{% endif %}</td>
+              <td>{{ row.year }}</td>
+              <td class="text-right">
+                {% if row.page %}<a href="{% pageurl row.page %}" class="link-arrow">Learn more</a>
+                {% elif row.details %}<button type="button" class="link-arrow" @click="open = !open" :aria-expanded="open"><span x-text="open ? 'Close' : 'Learn more'"></span></button>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if past_rows|length > page.initial_past_rows %}
+      <button type="button" class="btn-outline mt-6" @click="all = !all" x-text="all ? 'Show fewer' : 'See all past emergencies'"></button>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+{% include "includes/donate_box.html" with heading="Help us respond to the next emergency" appeal="EMERGENCIES" show_monthly=True %}
+{% endblock %}

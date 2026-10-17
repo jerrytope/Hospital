@@ -1,0 +1,13 @@
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+media/
+test-media/
+staticfiles/
+sent-emails/
+.verify/
+.pytest_cache/
+Humanitarian-Charity-Website-Build-Spec.pdf

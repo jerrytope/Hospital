@@ -1,0 +1,12 @@
+{% load site_tags %}
+{% if stories %}
+<section class="section">
+  <div class="container-site">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2 class="h-section">{{ value.heading }}</h2>
+      <a href="{% stories_url program=value.program.slug location=value.country.slug emergency=value.emergency.slug type=value.content_type %}" class="btn-outline">See all</a>
+    </div>
+    <div class="mt-8 grid gap-6 md:grid-cols-3">{% for story in stories %}{% include "includes/cards/story_card.html" %}{% endfor %}</div>
+  </div>
+</section>
+{% endif %}

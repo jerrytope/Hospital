@@ -1,0 +1,7 @@
+Good news! {{ donation.public_name }} just gave {{ donation.display_amount }} to your fundraiser "{{ fundraiser.title }}".
+{% if donation.public_message %}
+"{{ donation.public_message }}"
+{% endif %}
+You have now raised {{ fundraiser.display_raised }} of your {{ fundraiser.display_goal }} goal.
+
+Manage your fundraiser: {{ SITE_URL }}/account/fundraisers/

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags site_tags %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endblock %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% if page.intro %}<div class="container-site pt-12"><div class="prose-site max-w-3xl">{{ page.intro|richtext }}</div></div>{% endif %}
+<section class="section" x-data="worldMap()" id="map">
+  <div class="container-site">
+    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filter the map by region">
+      <button type="button" role="tab" class="badge" :class="region === '' ? 'badge-active' : ''" :aria-selected="region === ''" @click="setRegion('')">All regions</button>
+      {% for r in regions %}<button type="button" role="tab" class="badge" :class="region === '{{ r.slug }}' ? 'badge-active' : ''" :aria-selected="region === '{{ r.slug }}'" @click="setRegion('{{ r.slug }}')">{{ r.name }}</button>{% endfor %}
+    </div>
+    <div class="mt-6 overflow-hidden rounded-lg border border-line">
+      <div x-ref="map" class="h-[420px] w-full md:h-[540px]" role="region" aria-label="Map of countries where we work"></div>
+    </div>
+    <p class="mt-2 flex flex-wrap gap-4 text-sm text-muted">
+      <span class="inline-flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-full bg-accent"></span> Current programs</span>
+      <span class="inline-flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-full bg-muted"></span> Past programs</span>
+    </p>
+  </div>
+  <div class="container-site mt-12 grid gap-12 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <h2 class="h-section">{{ page.current_heading }}</h2>
+      <ul class="mt-6 grid gap-x-6 gap-y-2 sm:grid-cols-2 md:grid-cols-3">
+        {% for c in current_countries %}
+          <li x-show="region === '' || region === '{{ c.region.slug }}'"><a href="{% pageurl c %}" class="font-semibold text-brand-dark no-underline hover:text-brand">{{ c.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h2 class="h-section">{{ page.past_heading }}</h2>
+      <ul class="mt-6 columns-2 gap-x-6 text-muted">
+        {% for c in past_countries %}
+          <li class="mb-1" x-show="region === '' || region === '{{ c.region.slug }}'">{% if c.has_detail_page %}<a href="{% pageurl c %}">{{ c.title }}</a>{% else %}{{ c.title }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+{% for block in page.body %}{% include_block block %}{% endfor %}
+{{ map_points|json_script:"map-points" }}
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script>
+document.addEventListener("alpine:init", () => {
+  Alpine.data("worldMap", () => ({
+    region: new URLSearchParams(location.search).get("region") || "",
+    map: null, markers: [],
+    init() {
+      const points = JSON.parse(document.getElementById("map-points").textContent);
+      this.map = L.map(this.$refs.map, { scrollWheelZoom: false, worldCopyJump: true }).setView([12, 20], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 8, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(this.map);
+      points.forEach((p) => {
+        const current = p.status === "current";
+        const m = L.circleMarker([p.lat, p.lng], {
+          radius: current ? 8 : 6, color: "#fff", weight: 2, fillOpacity: 0.95,
+          fillColor: current ? "#E8532B" : "#5F6672",
+        });
+        const label = document.createElement("div");
+        const strong = document.createElement("strong"); strong.textContent = p.name; label.appendChild(strong);
+        if (p.url) { const a = document.createElement("a"); a.href = p.url; a.textContent = "View country"; a.style.display = "block"; label.appendChild(a); }
+        m.bindPopup(label);
+        m.bindTooltip(p.name);
+        m._region = p.region;
+        this.markers.push(m);
+      });
+      this.apply();
+    },
+    setRegion(r) { this.region = r; this.apply(); },
+    apply() {
+      const shown = [];
+      this.markers.forEach((m) => {
+        const on = !this.region || m._region === this.region;
+        if (on) { m.addTo(this.map); shown.push(m.getLatLng()); } else { m.remove(); }
+      });
+      if (shown.length && this.region) this.map.fitBounds(L.latLngBounds(shown).pad(0.4), { maxZoom: 5 });
+      else this.map.setView([12, 20], 2);
+    },
+  }));
+});
+</script>
+{% endblock %}

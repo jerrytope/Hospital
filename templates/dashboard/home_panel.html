@@ -1,0 +1,16 @@
+{% include "dashboard/_styles.html" %}
+<section class="w-mb-10" aria-labelledby="giving-panel-heading">
+  <h2 id="giving-panel-heading" class="w-h2">Giving at a glance</h2>
+  <div class="hm-grid">
+    <div class="hm-card"><h3>Today</h3><div class="v">{{ stats.today }}</div></div>
+    <div class="hm-card"><h3>Last 7 days</h3><div class="v">{{ stats.week }}</div></div>
+    <div class="hm-card"><h3>Last 30 days</h3><div class="v">{{ stats.month }}</div><span class="hm-muted">{{ stats.gifts_30d }} gifts</span></div>
+    <div class="hm-card"><h3>Active monthly donors</h3><div class="v">{{ stats.active_monthly }}</div><span class="hm-muted">{{ stats.new_monthly_30d }} new in 30 days</span></div>
+    <div class="hm-card {% if stats.pending_bank %}hm-alert{% endif %}"><h3>Bank transfers to check</h3><div class="v">{{ stats.pending_bank }}</div><a href="{% url 'dashboard_bank_transfers' %}">Open queue</a></div>
+    <div class="hm-card {% if stats.pending_fundraisers or stats.open_reports %}hm-alert{% endif %}"><h3>Fundraisers to review</h3><div class="v">{{ stats.pending_fundraisers }}</div><span class="hm-muted">{{ stats.open_reports }} open reports · {{ stats.edited_fundraisers }} edited</span><br><a href="{% url 'dashboard_fundraisers' %}">Moderate</a></div>
+    {% if stats.failed_ecards or stats.failed_webhooks or stats.past_due %}
+    <div class="hm-card hm-alert"><h3>Needs attention</h3><div class="hm-muted">{{ stats.failed_ecards }} failed e-cards<br>{{ stats.failed_webhooks }} webhook errors<br>{{ stats.past_due }} monthly gifts past due</div></div>
+    {% endif %}
+  </div>
+  <p><a class="button button-secondary" href="{% url 'dashboard_giving' %}">Full giving overview</a></p>
+</section>

@@ -1,0 +1,10 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>A donor says they have made a bank transfer.</p>
+<p><strong>{{ notice.first_name }} {{ notice.last_name }}</strong> ({{ notice.email }})<br>
+Amount: <strong>{{ notice.display_amount }}</strong><br>
+Transfer date: {{ notice.transfer_date|date:"j F Y" }}<br>
+Bank reference: {{ notice.bank_reference|default:"-" }}<br>
+Account: {{ notice.bank_account|default:"-" }}</p>
+<p>Check your bank statement, then confirm or reject it in the admin: <a href="{{ admin_url }}" style="color:#13599E">Bank transfer queue</a></p>
+{% endblock %}

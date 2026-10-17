@@ -1,0 +1,23 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% if entries %}
+<section class="section bg-brand-mist">
+  <div class="container-site">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2 class="h-section">{{ value.heading }}</h2>
+      <a href="{% pageurl value.history_page %}" class="btn-outline">Our full history</a>
+    </div>
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      {% for e in entries %}
+        <article class="card">
+          {% if e.photo %}{% image e.photo fill-640x400 format-webp class="card-img" loading="lazy" %}{% endif %}
+          <div class="card-body">
+            <p class="font-display text-3xl font-extrabold text-brand-light">{{ e.year }}</p>
+            <h3 class="card-title">{{ e.title }}</h3>
+            <div class="text-muted [&_p]:m-0">{{ e.text|richtext }}</div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}

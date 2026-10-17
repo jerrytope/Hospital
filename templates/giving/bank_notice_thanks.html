@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}Thank you{% endblock %}
+{% block content %}
+<section class="section"><div class="container-site max-w-2xl text-center">
+  <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-ok/10 text-ok">{% icon "check" "h-8 w-8" %}</span>
+  <h1 class="mt-4 text-3xl">Thank you, {{ notice.first_name }}!</h1>
+  <p class="mt-3 text-lg">We've received the details of your transfer of <strong>{{ notice.display_amount }}</strong>.</p>
+  <p class="mt-2 text-muted">Your reference is <strong>{{ notice.reference }}</strong>. Once we've matched it against our bank statement we'll email your receipt.</p>
+  <a href="/" class="btn-outline mt-8">Back to home</a>
+</div></section>
+{% endblock %}

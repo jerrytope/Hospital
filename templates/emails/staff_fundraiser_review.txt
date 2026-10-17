@@ -1,0 +1,3 @@
+A fundraiser is waiting for approval: {{ fundraiser.title }} by {{ fundraiser.owner.email }} (goal {{ fundraiser.display_goal }}).
+
+Review it: {{ admin_url }}

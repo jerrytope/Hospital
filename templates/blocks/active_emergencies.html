@@ -1,0 +1,8 @@
+{% if emergencies %}
+<section class="section">
+  <div class="container-site">
+    <h2 class="h-section">{{ value.heading }}</h2>
+    <div class="mt-8 grid gap-6 md:grid-cols-3">{% for emergency in emergencies %}{% include "includes/cards/emergency_card.html" %}{% endfor %}</div>
+  </div>
+</section>
+{% endif %}

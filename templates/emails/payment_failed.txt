@@ -1,0 +1,7 @@
+Dear {{ recurring.first_name }},
+
+We tried to collect your monthly gift of {{ recurring.display_amount }} but the payment did not go through. This usually happens when a card expires.
+
+Update your card or change your gift: {{ SITE_URL }}/account/monthly/
+
+Thank you for standing with us every month.

@@ -1,0 +1,50 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% block titletag %}Bank transfer queue{% endblock %}
+{% block main_header %}{% include "wagtailadmin/shared/header.html" with title="Bank transfer queue" subtitle="Check your bank statement, then confirm or reject" icon="tasks" %}{% endblock %}
+{% block main_content %}
+{% include "dashboard/_styles.html" %}
+<nav class="hm-tabs" aria-label="Filter">
+  <a href="?status=pending" class="{% if status == 'pending' %}on{% endif %}">Pending ({{ counts.pending|default:0 }})</a>
+  <a href="?status=confirmed" class="{% if status == 'confirmed' %}on{% endif %}">Confirmed ({{ counts.confirmed|default:0 }})</a>
+  <a href="?status=rejected" class="{% if status == 'rejected' %}on{% endif %}">Rejected ({{ counts.rejected|default:0 }})</a>
+  <a href="?status=all" class="{% if status == 'all' %}on{% endif %}">All</a>
+</nav>
+<table class="hm-table">
+  <thead><tr><th>Notice</th><th>Donor</th><th>Amount &amp; transfer</th><th>Proof</th><th>Action</th></tr></thead>
+  <tbody>
+  {% for n in notices %}
+    <tr>
+      <td><strong>{{ n.reference }}</strong><br><span class="hm-muted">{{ n.created_at|date:"j M Y H:i" }}</span><br>
+        {% if n.status == "pending" %}<span class="hm-badge warn">Pending</span>{% elif n.status == "confirmed" %}<span class="hm-badge ok">Confirmed</span>{% else %}<span class="hm-badge bad">Rejected</span>{% endif %}</td>
+      <td>{{ n.first_name }} {{ n.last_name }}<br><a href="mailto:{{ n.email }}">{{ n.email }}</a>{% if n.phone %}<br>{{ n.phone }}{% endif %}
+        {% if n.message %}<br><span class="hm-muted">“{{ n.message|truncatechars:140 }}”</span>{% endif %}</td>
+      <td><strong>{{ n.display_amount }}</strong><br>Sent {{ n.transfer_date|date:"j M Y" }}<br>Ref: {{ n.bank_reference|default:"-" }}<br>
+        <span class="hm-muted">To: {{ n.bank_account|default:"(not chosen)" }}</span>
+        {% if n.appeal_code %}<br><span class="hm-muted">Appeal {{ n.appeal_code }}</span>{% endif %}
+        {% if n.emergency %}<br><span class="hm-muted">For {{ n.emergency.title }}</span>{% endif %}</td>
+      <td>{% if n.proof %}<a href="{{ n.proof.url }}" target="_blank" rel="noopener">View file</a>{% else %}<span class="hm-muted">None</span>{% endif %}</td>
+      <td>
+        {% if n.status == "pending" %}
+          <form method="post" action="{% url 'dashboard_bank_transfer_action' n.pk %}" class="hm-inline">{% csrf_token %}
+            <input type="hidden" name="action" value="confirm">
+            <input type="text" name="amount" placeholder="{{ n.amount }}" aria-label="Amount received (leave blank if {{ n.amount }})">
+            <button class="button button-small" type="submit">Confirm received</button>
+          </form>
+          <form method="post" action="{% url 'dashboard_bank_transfer_action' n.pk %}" class="hm-inline">{% csrf_token %}
+            <input type="hidden" name="action" value="reject">
+            <input type="text" name="reason" placeholder="Reason (emailed to donor)" aria-label="Reason for rejecting">
+            <button class="button button-small button-secondary no" type="submit">Reject</button>
+          </form>
+        {% else %}
+          <span class="hm-muted">{{ n.get_status_display }} by {{ n.reviewed_by|default:"-" }} on {{ n.reviewed_at|date:"j M Y" }}</span>
+          {% if n.donation %}<br>Donation {{ n.donation.reference }}{% endif %}
+          {% if n.rejection_reason %}<br><span class="hm-muted">{{ n.rejection_reason }}</span>{% endif %}
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5" class="hm-muted">Nothing here. When donors tell us about a bank transfer it appears in this queue.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

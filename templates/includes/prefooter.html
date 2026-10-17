@@ -1,0 +1,23 @@
+{% load wagtailcore_tags site_tags %}
+{% if page.get_section_badges %}
+  {% with badges=page.get_section_badges %}
+    <nav class="border-t border-line bg-white" aria-label="In this section">
+      <div class="container-site flex flex-wrap gap-2 py-8">
+        {% for p in badges %}
+          <a href="{% pageurl p %}" class="badge {% if p.pk == page.pk %}badge-active{% endif %}"
+             {% if p.pk == page.pk %}aria-current="page"{% endif %}>{% if forloop.first %}{{ p.title }} overview{% else %}{{ p.title }}{% endif %}</a>
+        {% endfor %}
+      </div>
+    </nav>
+  {% endwith %}
+{% endif %}
+<section class="bg-brand-mist" aria-labelledby="newsletter-heading">
+  <div class="container-site grid gap-8 py-12 md:grid-cols-12 md:py-16">
+    <div class="md:col-span-4">
+      <p class="eyebrow">Stay connected</p>
+      <h2 id="newsletter-heading" class="h-section mt-1">{{ org.newsletter_heading }}</h2>
+      {% if org.newsletter_text %}<p class="mt-3 text-muted">{{ org.newsletter_text }}</p>{% endif %}
+    </div>
+    <div class="md:col-span-8">{% include "newsletter/form.html" with form_id="prefooter" %}</div>
+  </div>
+</section>

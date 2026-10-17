@@ -1,0 +1,13 @@
+Thank you, {{ donation.first_name }}!
+
+We received your {% if donation.frequency == "monthly" %}monthly {% endif %}gift of {{ donation.display_amount }}{% if donation.emergency %} for {{ donation.emergency.title }}{% endif %}{% if donation.fundraiser %} to {{ donation.fundraiser.title }}{% endif %}.
+
+Receipt: {{ donation.receipt.display_number }} (PDF attached)
+Reference: {{ donation.reference }}
+Date: {{ donation.paid_at|date:"j F Y" }}
+Payment: {{ donation.get_provider_display }}
+
+See all your gifts and receipts: {{ SITE_URL }}/account/
+
+With gratitude,
+The {{ org.name }} team

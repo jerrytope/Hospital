@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% if page.intro %}<div class="container-site pt-12"><div class="prose-site max-w-3xl">{{ page.intro|richtext }}</div></div>{% endif %}
+{% if featured_people %}
+<section class="section">
+  <div class="container-site grid gap-10 lg:grid-cols-2">
+    {% for p in featured_people %}
+      <article class="flex flex-col gap-6 sm:flex-row" x-data="{ more: false }">
+        {% if p.photo %}{% image p.photo fill-320x380 format-webp class="h-60 w-52 shrink-0 rounded-lg object-cover" loading="lazy" %}{% endif %}
+        <div>
+          <h2 class="text-2xl">{{ p.name }}</h2>
+          <p class="font-semibold text-brand-light">{{ p.title }}</p>
+          <div class="prose-site mt-3 text-base" :class="more ? '' : 'line-clamp-6'">{{ p.bio|richtext }}</div>
+          <button type="button" class="link-arrow mt-2" @click="more = !more" x-text="more ? 'Show less' : 'Read full bio'"></button>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% for label, people, key in groups %}
+<section class="py-10 {% cycle 'bg-brand-mist' '' %}">
+  <div class="container-site">
+    <h2 class="h-section">{{ label }}</h2>
+    <ul class="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-{% if key == 'council' %}4{% else %}3{% endif %}">
+      {% for p in people %}
+        <li><p class="font-display font-bold text-brand-dark">{{ p.name }}</p>
+          {% if p.title %}<p class="text-sm text-muted">{{ p.title }}</p>{% endif %}
+          {% if p.company or p.city %}<p class="text-sm text-muted">{{ p.company }}{% if p.company and p.city %}, {% endif %}{{ p.city }}</p>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endfor %}
+{% for name, people in affiliate_groups %}
+<section class="py-10">
+  <div class="container-site">
+    <h2 class="h-section">{{ name }}</h2>
+    <ul class="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for p in people %}<li><p class="font-display font-bold text-brand-dark">{{ p.name }}</p>{% if p.title %}<p class="text-sm text-muted">{{ p.title }}</p>{% endif %}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+{% endfor %}
+{% for block in page.end_links %}{% include_block block %}{% endfor %}
+{% endblock %}

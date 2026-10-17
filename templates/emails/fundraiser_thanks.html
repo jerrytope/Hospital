@@ -1,0 +1,5 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>{{ note|linebreaksbr }}</p>
+<p>&mdash; {{ fundraiser.owner.get_full_name|default:"Your fundraiser" }}, for <a href="{{ SITE_URL }}{{ fundraiser.get_absolute_url }}" style="color:#13599E">{{ fundraiser.title }}</a></p>
+{% endblock %}

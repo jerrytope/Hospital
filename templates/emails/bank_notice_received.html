@@ -1,0 +1,7 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<p>Dear {{ notice.first_name }},</p>
+<p>Thank you for letting us know about your bank transfer of <strong>{{ notice.display_amount }}</strong> (our reference <strong>{{ notice.reference }}</strong>).</p>
+<p>Our team will match it against our bank statement, usually within 2 working days. As soon as it is confirmed we will email your official receipt.</p>
+<p>With gratitude,<br>The {{ org.name }} team</p>
+{% endblock %}

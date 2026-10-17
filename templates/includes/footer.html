@@ -1,0 +1,56 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% footer_navigation as foot %}
+<footer class="bg-brand-dark text-white/80">
+  <div class="container-site grid gap-10 py-14 lg:grid-cols-12">
+    <div class="lg:col-span-4">
+      {% if org.logo_on_dark %}{% image org.logo_on_dark height-56 class="h-12 w-auto" alt=org.name %}
+      {% else %}<p class="font-display text-xl font-extrabold text-white">{{ org.name }}</p>{% endif %}
+      <h2 class="mt-6 text-2xl text-white">{{ org.footer_donate_heading }}</h2>
+      <p class="mt-2">{{ org.footer_donate_text }}</p>
+      <a href="{% donate_href 'FOOTER' %}" data-donate data-appeal="FOOTER" class="btn-donate mt-5">Donate Today</a>
+      {% bank_accounts "footer" as footer_accounts %}
+      {% if footer_accounts %}
+        <div class="mt-6 space-y-2 text-sm">
+          <p class="font-display font-bold uppercase tracking-widest text-white">Give by bank transfer</p>
+          {% for acct in footer_accounts %}
+            <p>{{ acct.bank_name }} · <span class="font-semibold text-white">{{ acct.account_number }}</span> · {{ acct.account_name }} ({{ acct.currency }})</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="grid gap-8 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
+      {% for col in foot.columns %}
+        <div>
+          <h3 class="font-display text-sm font-bold uppercase tracking-widest text-white">{{ col.heading }}</h3>
+          <ul class="mt-4 space-y-2 text-sm">
+            {% for link in col.links %}<li><a href="{{ link.href }}" class="text-white/80 no-underline hover:text-white">{{ link.label }}</a></li>{% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+      <div>
+        <h3 class="font-display text-sm font-bold uppercase tracking-widest text-white">Stay Connected</h3>
+        <div class="mt-4 flex gap-2">
+          {% if org.facebook_url %}<a href="{{ org.facebook_url }}" class="rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="Facebook" rel="noopener" target="_blank">{% icon "facebook" "h-5 w-5" %}</a>{% endif %}
+          {% if org.x_url %}<a href="{{ org.x_url }}" class="rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="X" rel="noopener" target="_blank">{% icon "x-social" "h-5 w-5" %}</a>{% endif %}
+          {% if org.instagram_url %}<a href="{{ org.instagram_url }}" class="rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="Instagram" rel="noopener" target="_blank">{% icon "instagram" "h-5 w-5" %}</a>{% endif %}
+          {% if org.linkedin_url %}<a href="{{ org.linkedin_url }}" class="rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="LinkedIn" rel="noopener" target="_blank">{% icon "linkedin" "h-5 w-5" %}</a>{% endif %}
+          {% if org.youtube_url %}<a href="{{ org.youtube_url }}" class="rounded-full bg-white/10 p-2 text-white hover:bg-white/20" aria-label="YouTube" rel="noopener" target="_blank">{% icon "youtube" "h-5 w-5" %}</a>{% endif %}
+        </div>
+        {% if org.main_phone %}<p class="mt-4 text-sm">{% icon "phone" "inline h-4 w-4" %} {{ org.main_phone }}</p>{% endif %}
+        {% if org.general_email %}<p class="mt-1 text-sm">{% icon "mail" "inline h-4 w-4" %} <a href="mailto:{{ org.general_email }}" class="text-white/80">{{ org.general_email }}</a></p>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <div class="container-site flex flex-col gap-4 py-6 text-xs md:flex-row md:items-start md:justify-between">
+      <div class="space-y-1 md:max-w-3xl">
+        <p>&copy; {% now "Y" %} {{ org.name }}. All rights reserved.</p>
+        {% if org.tax_status_text %}<p>{{ org.tax_status_text }}{% if org.tax_id %} Tax ID: {{ org.tax_id }}.{% endif %}</p>{% endif %}
+        {% if org.licence_note %}<p>{{ org.licence_note }}</p>{% endif %}
+      </div>
+      <ul class="flex flex-wrap gap-x-4 gap-y-1">
+        {% for link in foot.legal %}<li><a href="{{ link.href }}" class="text-white/80 no-underline hover:text-white">{{ link.label }}</a></li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</footer>

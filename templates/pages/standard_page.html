@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+<div class="pb-12">{% for block in page.body %}{% include_block block %}{% endfor %}</div>
+{% endblock %}

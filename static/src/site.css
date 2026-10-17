@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { @apply bg-white font-sans text-ink antialiased text-[17px] leading-relaxed; }
+  h1, h2, h3, h4 { @apply font-display text-brand-dark font-extrabold tracking-tight; }
+  a { @apply text-brand; }
+  :focus-visible { outline: 3px solid theme("colors.brand.light"); outline-offset: 2px; }
+  [x-cloak] { display: none !important; }
+  .icon { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+}
+
+@layer components {
+  .container-site { @apply mx-auto w-full max-w-site px-4 md:px-6; }
+  .section { @apply py-12 md:py-20; }
+  .eyebrow { @apply font-serif italic text-brand-light text-base md:text-lg; }
+  .h-section { @apply text-3xl md:text-4xl leading-tight; }
+
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-display text-sm font-bold uppercase tracking-wider no-underline transition; }
+  .btn-donate { @apply btn bg-accent text-white hover:bg-accent-dark shadow-sm; }
+  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
+  .btn-outline { @apply btn border-2 border-brand text-brand hover:bg-brand hover:text-white; }
+  .btn-ghost-white { @apply btn border-2 border-white text-white hover:bg-white hover:text-brand-dark; }
+  .link-arrow { @apply inline-flex items-center gap-1 font-display text-sm font-bold uppercase tracking-wider text-brand no-underline hover:text-brand-dark; }
+
+  .card { @apply flex flex-col overflow-hidden rounded-lg bg-white shadow-card; }
+  .card-img { @apply aspect-[16/10] w-full object-cover; }
+  .card-body { @apply flex flex-1 flex-col gap-2 p-5; }
+  .card-label { @apply font-display text-xs font-bold uppercase tracking-widest text-brand-light; }
+  .card-title { @apply font-display text-lg font-extrabold leading-snug text-brand-dark; }
+
+  .badge { @apply inline-flex items-center rounded-full border border-line bg-white px-4 py-2 font-display text-sm font-semibold text-brand-dark no-underline hover:border-brand hover:text-brand; }
+  .badge-active { @apply border-brand bg-brand text-white hover:text-white; }
+
+  .field { @apply block w-full rounded-md border border-line bg-white px-4 py-3 text-base text-ink placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30; }
+  .field-label { @apply mb-1 block text-sm font-semibold text-brand-dark; }
+  .field-error { @apply mt-1 text-sm text-danger; }
+  .honeypot { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+
+  .auth-form input:not([type=checkbox]):not([type=radio]):not([type=file]), .auth-form select, .auth-form textarea { @apply field; }
+  .auth-form input[type=file] { @apply block w-full text-sm; }
+  .prose-site { @apply prose prose-lg max-w-none prose-headings:font-display prose-headings:text-brand-dark prose-a:text-brand prose-blockquote:border-brand-light prose-blockquote:font-serif; }
+
+  .stat-value { @apply font-display text-4xl font-extrabold text-brand md:text-5xl; }
+  .table-site { @apply w-full border-collapse text-left text-base; }
+  .table-site th { @apply border-b-2 border-brand-dark py-3 pr-4 font-display text-xs uppercase tracking-widest text-brand-dark; }
+  .table-site td { @apply border-b border-line py-3 pr-4 align-top; }
+}
+
+/* Rich text that sits beside a heading should start level with it. */
+.prose-site > :first-child { margin-top: 0; }
+.prose-site > :last-child { margin-bottom: 0; }
+
+/* Leaflet markers */
+.map-marker { @apply rounded-full border-2 border-white shadow; }

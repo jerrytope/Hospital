@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags site_tags %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<section class="section"><div class="container-site max-w-4xl">
+  <form method="get" role="search" class="flex border-b-2 border-brand-dark">
+    <label for="q" class="sr-only">Search</label>
+    <input id="q" name="q" type="search" value="{{ query }}" class="w-full py-3 text-2xl focus:outline-none" placeholder="Search…">
+    <button class="p-2" aria-label="Search">{% icon "search" "h-7 w-7" %}</button>
+  </form>
+  {% if query %}<p class="mt-4 text-muted">{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} for “{{ query }}”</p>{% endif %}
+  {% for pick in promotions %}<a href="{% pageurl pick.page %}" class="mt-6 block rounded-lg bg-brand-mist p-5 no-underline"><p class="card-label">Recommended</p><p class="card-title">{{ pick.page.title }}</p>{% if pick.description %}<p class="text-muted">{{ pick.description }}</p>{% endif %}</a>{% endfor %}
+  <ul class="mt-6 divide-y divide-line">
+    {% for r in results %}<li class="py-5">{% if r.specific.type_label %}<p class="card-label">{{ r.specific.type_label }}</p>{% endif %}<a href="{% pageurl r %}" class="font-display text-xl font-bold text-brand-dark no-underline hover:text-brand">{{ r.title }}</a>{% if r.search_description or r.specific.excerpt %}<p class="mt-1 text-muted">{{ r.specific.excerpt|default:r.search_description|truncatechars:200 }}</p>{% endif %}</li>{% endfor %}
+  </ul>
+  {% if page_obj.has_other_pages %}<nav class="mt-8 flex gap-2" aria-label="Pagination">{% if page_obj.has_previous %}<a class="badge" href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}{% if page_obj.has_next %}<a class="badge" href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">Next</a>{% endif %}</nav>{% endif %}
+</div></section>
+{% endblock %}

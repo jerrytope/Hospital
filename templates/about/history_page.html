@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+{% block content %}
+{% include "includes/hero.html" %}
+{% if page.intro %}<div class="container-site pt-12"><div class="prose-site max-w-3xl">{{ page.intro|richtext }}</div></div>{% endif %}
+<section class="section">
+  <div class="container-site">
+    <ol class="relative mx-auto max-w-5xl border-l-4 border-brand-light/40 md:border-l-0">
+      <div class="absolute bottom-0 left-1/2 top-0 hidden w-1 -translate-x-1/2 bg-brand-light/40 md:block" aria-hidden="true"></div>
+      {% for e in page.timeline_entries.all %}
+        <li class="relative mb-12 pl-8 md:grid md:grid-cols-2 md:gap-12 md:pl-0">
+          <span class="absolute -left-[14px] top-1 h-6 w-6 rounded-full border-4 border-white bg-accent md:left-1/2 md:-translate-x-1/2" aria-hidden="true"></span>
+          <div class="{% cycle 'md:text-right md:pr-10' 'md:col-start-2 md:pl-10' %}">
+            <p class="font-display text-4xl font-extrabold text-brand-light">{{ e.year }}</p>
+            <h2 class="mt-1 text-xl">{{ e.title }}</h2>
+            <div class="prose-site mt-2 text-base">{{ e.text|richtext }}</div>
+          </div>
+          {% if e.photo %}
+            <div class="mt-4 md:mt-0 {% cycle 'md:pl-10' 'md:col-start-1 md:row-start-1 md:pr-10' %}">
+              {% image e.photo fill-640x400 format-webp class="w-full rounded-lg shadow-card" loading="lazy" %}
+            </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+{% for block in page.end_links %}{% include_block block %}{% endfor %}
+{% endblock %}

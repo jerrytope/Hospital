@@ -1,0 +1,13 @@
+{% extends "emails/_base.html" %}
+{% block body %}
+<h1 style="margin:0 0 12px;font-size:22px;color:#0B2545">Thank you, {{ donation.first_name }}!</h1>
+<p>We received your {% if donation.frequency == "monthly" %}monthly {% endif %}gift of <strong>{{ donation.display_amount }}</strong>{% if donation.emergency %} for <strong>{{ donation.emergency.title }}</strong>{% endif %}{% if donation.fundraiser %} to <strong>{{ donation.fundraiser.title }}</strong>{% endif %}.</p>
+<p>Your official receipt <strong>{{ donation.receipt.display_number }}</strong> is attached as a PDF. Please keep it for your records.</p>
+<table role="presentation" cellpadding="6" style="border-collapse:collapse;font-size:14px;margin:16px 0">
+<tr><td style="color:#5F6672">Reference</td><td><strong>{{ donation.reference }}</strong></td></tr>
+<tr><td style="color:#5F6672">Date</td><td>{{ donation.paid_at|date:"j F Y" }}</td></tr>
+<tr><td style="color:#5F6672">Payment</td><td>{{ donation.get_provider_display }}</td></tr>
+</table>
+<p>You can see all your gifts and download receipts any time from your account: <a href="{{ SITE_URL }}/account/" style="color:#13599E">{{ SITE_URL }}/account/</a></p>
+<p>With gratitude,<br>The {{ org.name }} team</p>
+{% endblock %}

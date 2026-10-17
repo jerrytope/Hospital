@@ -1,0 +1,19 @@
+{% load wagtailimages_tags site_tags %}
+<section class="relative isolate overflow-hidden bg-brand-dark">
+  {% if page.hero_image %}
+    {% image page.hero_image fill-1920x760-c60 format-webp as hero %}
+    <img src="{{ hero.url }}" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover" fetchpriority="high">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-brand-dark/90 via-brand-dark/60 to-brand-dark/10"></div>
+  {% else %}
+    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-brand-dark to-brand"></div>
+  {% endif %}
+  <div class="container-site py-16 md:py-24 {% if page.hero_image %}lg:py-32{% endif %}">
+    <div class="max-w-3xl text-white">
+      {% if page.eyebrow or eyebrow %}<p class="eyebrow text-brand-light">{{ eyebrow|default:page.eyebrow }}</p>{% endif %}
+      <h1 class="mt-2 text-4xl leading-tight text-white md:text-5xl lg:text-6xl">{{ heading|default:page.display_heading }}</h1>
+      {% if page.hero_intro %}<p class="mt-5 text-lg text-white/90 md:text-xl">{{ page.hero_intro }}</p>{% endif %}
+      {% if hero_cta %}<div class="mt-8">{{ hero_cta }}</div>{% endif %}
+    </div>
+  </div>
+  {% if page.hero_image.credit %}<p class="absolute bottom-2 right-4 text-xs text-white/60">Photo: {{ page.hero_image.credit }}</p>{% endif %}
+</section>

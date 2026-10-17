@@ -1,0 +1,10 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+<article class="card group h-full">
+  {% if emergency.hero_image %}{% image emergency.hero_image fill-640x400 format-webp class="card-img" loading="lazy" %}{% endif %}
+  <div class="card-body">
+    <p class="card-label text-accent">{% if emergency.status == "active" %}Active emergency{% else %}{{ emergency.year_label }}{% endif %}</p>
+    <h3 class="card-title"><a href="{% pageurl emergency %}" class="text-brand-dark no-underline hover:text-brand">{{ emergency.title }}</a></h3>
+    {% if emergency.card_summary %}<p class="text-base text-muted">{{ emergency.card_summary }}</p>{% endif %}
+    <a href="{% pageurl emergency %}" class="link-arrow mt-auto pt-2">Read more {% icon "arrow-right" "h-4 w-4" %}<span class="sr-only">: {{ emergency.title }}</span></a>
+  </div>
+</article>

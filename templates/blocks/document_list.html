@@ -1,0 +1,13 @@
+{% load site_tags %}
+<section class="container-site py-10">
+  {% if value.heading %}<h2 class="h-section mb-6">{{ value.heading }}</h2>{% endif %}
+  <ul class="divide-y divide-line border-y border-line">
+    {% for item in value.items %}
+      <li class="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:gap-6">
+        {% if item.date %}<span class="w-32 shrink-0 text-sm font-semibold text-muted">{{ item.date|date:"M j, Y" }}</span>{% endif %}
+        <a href="{% if item.document %}{{ item.document.url }}{% else %}{{ item.url }}{% endif %}" class="flex-1 font-semibold text-brand-dark no-underline hover:text-brand">{{ item.title }}</a>
+        <span class="inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-brand">{% if item.document %}{% icon "download" "h-4 w-4" %} Download{% else %}{% icon "external-link" "h-4 w-4" %} Link{% endif %}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

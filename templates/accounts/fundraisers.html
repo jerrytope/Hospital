@@ -1,0 +1,26 @@
+{% extends "accounts/_layout.html" %}
+{% load site_tags %}
+{% block title %}My fundraisers{% endblock %}
+{% block account_title %}My fundraisers{% endblock %}
+{% block account_content %}
+<a href="{% url 'account_fundraiser_create' %}" class="btn-donate mb-6">Start a new fundraiser</a>
+{% for f in fundraisers %}
+  <article class="mb-4 rounded-lg border border-line p-5">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div><h2 class="text-xl">{{ f.title }}</h2><p class="text-sm text-muted">{{ f.get_status_display }}{% if f.end_date %} · ends {{ f.end_date|date:"j M Y" }}{% endif %}</p></div>
+      <div class="flex flex-wrap gap-2">
+        {% if f.status != "hidden" %}<a href="{% url 'account_fundraiser_edit' f.pk %}" class="btn-outline px-4 py-2">Edit</a>{% endif %}
+        <a href="{% url 'account_fundraiser_manage' f.pk %}" class="btn-primary px-4 py-2">Manage</a>
+        {% if f.is_public %}<a href="{{ f.get_absolute_url }}" class="btn-outline px-4 py-2">View page</a>{% endif %}
+      </div>
+    </div>
+    {% if f.status == "changes" and f.staff_note %}<p class="mt-3 rounded-md bg-warn/10 p-3 text-sm"><strong>Changes requested:</strong> {{ f.staff_note }}</p>{% endif %}
+    {% if f.status == "draft" %}<p class="mt-3 text-sm text-muted">Draft: open Edit and choose “Submit for review” when you're ready.</p>{% endif %}
+    {% if f.status == "pending" %}<p class="mt-3 text-sm text-muted">Our team is reviewing your page. You'll get an email when it's live.</p>{% endif %}
+    <div class="mt-4 h-2 rounded-full bg-brand-mist"><div class="h-2 rounded-full bg-accent" style="width: {{ f.percent }}%"></div></div>
+    <p class="mt-1 text-sm text-muted">{{ f.display_raised }} raised of {{ f.display_goal }} · {{ f.donor_count }} donor{{ f.donor_count|pluralize }}</p>
+  </article>
+{% empty %}
+  <div class="rounded-lg bg-brand-mist p-6"><h2 class="text-xl">Raise money for a cause you care about</h2><p class="mt-2 text-muted">Celebrate a birthday, run a race or honour a loved one by asking friends to give. It takes five minutes to set up.</p></div>
+{% endfor %}
+{% endblock %}

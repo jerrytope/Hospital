@@ -1,0 +1,5 @@
+{% load wagtailembeds_tags %}
+<figure class="container-site my-8 max-w-4xl">
+  <div class="aspect-video overflow-hidden rounded-lg bg-black [&_iframe]:h-full [&_iframe]:w-full">{% embed value.video.url %}</div>
+  {% if value.caption %}<figcaption class="mt-2 text-sm text-muted">{{ value.caption }}</figcaption>{% endif %}
+</figure>

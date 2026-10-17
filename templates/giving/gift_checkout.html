@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}Gift checkout{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-site grid gap-10 lg:grid-cols-12">
+    <form method="post" class="space-y-5 lg:col-span-7" novalidate x-data="{ ecard: {{ form.send_ecard.value|yesno:'true,false' }} }">
+      {% csrf_token %}
+      <h1 class="text-3xl">Checkout</h1>
+      <div class="honeypot" aria-hidden="true"><label>Leave empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <fieldset class="grid gap-4 sm:grid-cols-2">
+        <legend class="mb-2 font-display font-bold text-brand-dark">Your details</legend>
+        <div><label class="field-label" for="g-first">First name</label><input id="g-first" name="first_name" class="field" value="{{ form.first_name.value|default:'' }}" required>{% for e in form.first_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div><label class="field-label" for="g-last">Last name</label><input id="g-last" name="last_name" class="field" value="{{ form.last_name.value|default:'' }}" required>{% for e in form.last_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+        <div class="sm:col-span-2"><label class="field-label" for="g-email">Email</label><input id="g-email" type="email" name="email" class="field" value="{{ form.email.value|default:'' }}" required>{% for e in form.email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+      </fieldset>
+      <fieldset class="rounded-lg border border-line p-4">
+        <label class="flex items-center gap-2 font-semibold text-brand-dark"><input type="checkbox" name="send_ecard" x-model="ecard"> Send an e-card to tell someone about this gift</label>
+        <div x-show="ecard" x-collapse class="mt-4 grid gap-4 sm:grid-cols-2">
+          <div><label class="field-label" for="g-rname">Recipient's name</label><input id="g-rname" name="recipient_name" class="field" value="{{ form.recipient_name.value|default:'' }}">{% for e in form.recipient_name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+          <div><label class="field-label" for="g-remail">Recipient's email</label><input id="g-remail" type="email" name="recipient_email" class="field" value="{{ form.recipient_email.value|default:'' }}">{% for e in form.recipient_email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+          <div class="sm:col-span-2"><label class="field-label" for="g-msg">Message</label><textarea id="g-msg" name="message" rows="3" maxlength="1000" class="field">{{ form.message.value|default:'' }}</textarea></div>
+          <div><label class="field-label" for="g-date">Send on</label><input id="g-date" type="date" name="send_date" min="{{ today|date:'Y-m-d' }}" class="field" value="{{ form.send_date.value|default:'' }}">{% for e in form.send_date.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+          <div><label class="field-label" for="g-design">Design</label><select id="g-design" name="design" class="field"><option value="hope">Hope (blue)</option><option value="bloom">Bloom (green)</option><option value="light">Light (gold)</option></select></div>
+          <p class="text-sm text-muted sm:col-span-2">E-cards arrive within 2 hours of the send time and always show your name. Gifts support our work where it's needed most; you can't choose a specific country.</p>
+        </div>
+      </fieldset>
+      <button type="submit" class="btn-donate w-full py-4 text-base">Pay {{ display_total }}</button>
+    </form>
+    <aside class="lg:col-span-5">
+      <div class="rounded-lg bg-brand-mist p-6">
+        <h2 class="text-xl">Your gifts</h2>
+        <ul class="mt-4 divide-y divide-line">
+          {% for line in lines %}<li class="flex justify-between py-2"><span>{{ line.qty }} × {{ line.item.title }}</span><span class="font-semibold">{{ line.total|money:cart.currency }}</span></li>{% endfor %}
+        </ul>
+        <p class="mt-4 flex justify-between border-t border-line pt-4 font-display text-xl font-extrabold"><span>Total</span><span>{{ display_total }}</span></p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

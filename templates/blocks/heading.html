@@ -1,0 +1,5 @@
+<div class="container-site pt-12 md:pt-16" {% if value.anchor %}id="{{ value.anchor }}"{% endif %}>
+  {% if value.eyebrow %}<p class="eyebrow">{{ value.eyebrow }}</p>{% endif %}
+  <h2 class="h-section mt-1">{{ value.heading }}</h2>
+  {% if value.intro %}<p class="mt-4 max-w-3xl text-lg text-muted">{{ value.intro }}</p>{% endif %}
+</div>

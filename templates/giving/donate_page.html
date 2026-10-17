@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% block title %}Donate{% endblock %}
+{% block content %}
+<section class="relative bg-brand-dark">
+  <div class="container-site grid gap-10 py-12 lg:grid-cols-2 lg:py-20">
+    <div class="text-white">
+      <p class="eyebrow text-brand-light">Give today</p>
+      <h1 class="mt-2 text-4xl leading-tight text-white md:text-5xl">{{ ds.modal_heading }}</h1>
+      <p class="mt-4 text-lg text-white/85">Every gift delivers emergency medical care, clean water and protection to families facing crisis.</p>
+      <ul class="mt-8 space-y-3 text-white/90">
+        <li class="flex gap-3">{% icon "check" "h-5 w-5 text-brand-light" %} Secure card payments: we never see your card details</li>
+        <li class="flex gap-3">{% icon "check" "h-5 w-5 text-brand-light" %} An official receipt is emailed straight away</li>
+        <li class="flex gap-3">{% icon "check" "h-5 w-5 text-brand-light" %} Change or cancel monthly gifts any time from your account</li>
+        <li class="flex gap-3">{% icon "check" "h-5 w-5 text-brand-light" %} Prefer bank transfer? Our account details are in the form</li>
+      </ul>
+    </div>
+    <div class="rounded-2xl bg-white p-6 shadow-2xl">{% include "giving/partials/donate_form.html" %}</div>
+  </div>
+</section>
+{% endblock %}

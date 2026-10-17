@@ -1,0 +1,9 @@
+A donor says they have made a bank transfer.
+
+{{ notice.first_name }} {{ notice.last_name }} ({{ notice.email }})
+Amount: {{ notice.display_amount }}
+Transfer date: {{ notice.transfer_date|date:"j F Y" }}
+Bank reference: {{ notice.bank_reference|default:"-" }}
+Account: {{ notice.bank_account|default:"-" }}
+
+Confirm or reject it in the admin: {{ admin_url }}

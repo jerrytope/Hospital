@@ -1,0 +1,9 @@
+<article class="card">
+  {% if f.photo %}<img src="{{ f.photo.url }}" alt="" class="card-img" loading="lazy">{% else %}<div class="card-img bg-brand-mist"></div>{% endif %}
+  <div class="card-body">
+    <h2 class="card-title"><a href="{{ f.get_absolute_url }}" class="text-brand-dark no-underline hover:text-brand">{{ f.title }}</a></h2>
+    <p class="text-sm text-muted">by {{ f.owner.first_name|default:"a supporter" }}</p>
+    <div class="mt-2 h-2 rounded-full bg-brand-mist"><div class="h-2 rounded-full bg-accent" style="width: {{ f.percent }}%"></div></div>
+    <p class="text-sm"><strong>{{ f.display_raised }}</strong> of {{ f.display_goal }}</p>
+  </div>
+</article>

@@ -1,0 +1,27 @@
+{% extends "accounts/_layout.html" %}
+{% load site_tags %}
+{% block title %}Donations{% endblock %}
+{% block account_title %}Donations &amp; receipts{% endblock %}
+{% block account_content %}
+{% if years %}
+<div class="mb-6 flex flex-wrap items-center gap-2"><span class="text-sm font-semibold text-muted">Yearly giving statement:</span>
+  {% for y in years %}<a href="{% url 'account_statement' y %}" class="badge">{% icon "download" "mr-1 h-4 w-4" %} {{ y }}</a>{% endfor %}</div>
+{% endif %}
+<div class="overflow-x-auto">
+<table class="table-site">
+  <thead><tr><th>Date</th><th>Amount</th><th>Type</th><th>For</th><th>Status</th><th><span class="sr-only">Receipt</span></th></tr></thead>
+  <tbody>
+    {% for d in donations %}
+      <tr>
+        <td>{{ d.paid_at|default:d.created_at|date:"j M Y" }}</td>
+        <td class="font-semibold">{{ d.display_amount }}</td>
+        <td>{% if d.frequency == "monthly" %}Monthly{% else %}One-time{% endif %}{% if d.provider == "bank" %} · bank{% endif %}</td>
+        <td>{% if d.emergency %}{{ d.emergency.title }}{% elif d.fundraiser %}{{ d.fundraiser.title }}{% else %}Where most needed{% endif %}</td>
+        <td>{{ d.get_status_display }}</td>
+        <td>{% if d.status == "succeeded" %}<a href="{% url 'account_receipt' d.reference %}" class="link-arrow">{% icon "download" "h-4 w-4" %} PDF</a>{% endif %}</td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="text-muted">No donations yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

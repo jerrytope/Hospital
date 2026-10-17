@@ -1,0 +1,20 @@
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+<section class="section">
+  <div class="container-site">
+    {% if value.heading %}<h2 class="h-section">{{ value.heading }}</h2>{% endif %}
+    {% if value.intro %}<p class="mt-3 max-w-3xl text-lg text-muted">{{ value.intro }}</p>{% endif %}
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-{% if value.cards|length == 4 %}4{% else %}3{% endif %}">
+      {% for card in value.cards %}
+        <article class="card group">
+          {% if card.image %}{% image card.image fill-640x400 format-webp class="card-img" loading="lazy" %}{% endif %}
+          <div class="card-body">
+            {% if card.label %}<p class="card-label">{{ card.label }}</p>{% endif %}
+            <h3 class="card-title">{% if card.link and card.link|href %}<a href="{{ card.link|href }}" class="text-brand-dark no-underline hover:text-brand">{{ card.title }}</a>{% else %}{{ card.title }}{% endif %}</h3>
+            {% if card.text %}<p class="text-muted">{{ card.text }}</p>{% endif %}
+            {% if card.link and card.link|href %}<a href="{{ card.link|href }}" class="link-arrow mt-auto pt-2">{{ card.link|linktext }} {% icon "arrow-right" "h-4 w-4" %}</a>{% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

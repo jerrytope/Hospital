@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{# 1. Hero #}
+<section class="relative isolate overflow-hidden bg-brand-dark">
+  {% if page.hero_image %}
+    {% image page.hero_image fill-1920x900-c50 format-webp as hero %}
+    <img src="{{ hero.url }}" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover" fetchpriority="high">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-brand-dark/90 via-brand-dark/55 to-transparent"></div>
+  {% else %}<div class="absolute inset-0 -z-10 bg-gradient-to-br from-brand-dark to-brand"></div>{% endif %}
+  <div class="container-site pb-36 pt-20 md:pb-48 md:pt-28 lg:pt-36">
+    <div class="max-w-2xl text-white">
+      <h1 class="text-4xl leading-[1.05] text-white md:text-6xl">{{ page.display_heading }}</h1>
+      {% if page.hero_appeal %}<p class="mt-6 text-lg text-white/90 md:text-xl">{{ page.hero_appeal }}</p>{% endif %}
+      <a href="{% donate_href page.hero_appeal_code %}" data-donate class="btn-donate mt-8 px-10 py-4 text-base">{{ page.hero_button_label }}</a>
+    </div>
+  </div>
+  {% if page.hero_image.credit %}<p class="absolute bottom-2 right-4 text-xs text-white/60">Photo: {{ page.hero_image.credit }}</p>{% endif %}
+</section>
+
+{# 2. Emergency cards overlapping the hero #}
+{% if hero_emergencies %}
+<section class="relative z-10 -mt-24 md:-mt-32" aria-label="Current emergencies">
+  <div class="container-site grid gap-6 md:grid-cols-{{ hero_emergencies|length }}">
+    {% for emergency in hero_emergencies %}{% include "includes/cards/emergency_card.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{# 3. Mission #}
+{% if page.mission_text %}
+<section class="section">
+  <div class="container-site max-w-4xl text-center">
+    <div class="font-serif text-2xl italic leading-relaxed text-brand-dark md:text-3xl [&_p]:m-0">{{ page.mission_text|richtext }}</div>
+    {% if page.mission_link %}<a href="{% pageurl page.mission_link %}" class="link-arrow mt-6">{{ page.mission_link_label }} {% icon "arrow-right" "h-4 w-4" %}</a>{% endif %}
+  </div>
+</section>
+{% endif %}
+
+{# 4. Our impact #}
+{% with rows=page.impact_rows.all %}
+{% if rows %}
+<section class="section bg-brand-mist" aria-labelledby="impact-h">
+  <div class="container-site">
+    <h2 id="impact-h" class="h-section text-center">{{ page.impact_heading }}</h2>
+    <div class="mt-12 space-y-12 md:space-y-20">
+      {% for row in rows %}
+        <div class="grid items-center gap-8 md:grid-cols-2 md:gap-14">
+          <div class="{% cycle '' 'md:order-2' %}">
+            {% if row.image %}{% image row.image fill-800x560 format-webp class="w-full rounded-lg shadow-card" loading="lazy" %}{% endif %}
+          </div>
+          <div>
+            <h3 class="text-2xl leading-snug md:text-4xl">{{ row.headline }}</h3>
+            <div class="prose-site mt-4">{{ row.text|richtext }}</div>
+            {% if row.link_page %}<a href="{% pageurl row.link_page %}" class="link-arrow mt-5">{{ row.link_label }} {% icon "arrow-right" "h-4 w-4" %}</a>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{# 5. Donate band #}
+{% include "includes/donate_box.html" with heading=page.donate_heading text=page.donate_text appeal=page.donate_appeal_code button="Give now" show_monthly=True %}
+
+{# 6. Stories of hope #}
+{% include "includes/related_stories.html" with stories=latest_stories heading=page.stories_heading explore_url=settings.core.OrganisationSettings.stories_page.url %}
+
+{% for block in page.body %}{% include_block block %}{% endfor %}
+{% endblock %}
+
+{# 7. Join our community (replaces the generic pre-footer heading on the homepage) #}
+{% block prefooter %}
+<section class="bg-brand-mist" aria-labelledby="community-h">
+  <div class="container-site grid gap-8 py-12 md:grid-cols-12 md:py-16">
+    <div class="md:col-span-4">
+      <h2 id="community-h" class="h-section">{{ page.community_heading }}</h2>
+      <p class="mt-3 text-muted">{{ page.community_text|default:settings.core.OrganisationSettings.newsletter_text }}</p>
+    </div>
+    <div class="md:col-span-8">{% include "newsletter/form.html" with form_id="home" %}</div>
+  </div>
+</section>
+{% endblock %}

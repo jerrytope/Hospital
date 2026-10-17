@@ -1,0 +1,16 @@
+{% load wagtailcore_tags site_tags %}
+<section class="container-site py-10">
+  {% if value.heading %}<h2 class="h-section mb-6">{{ value.heading }}</h2>{% endif %}
+  <div class="max-w-4xl divide-y divide-line border-y border-line">
+    {% for item in value.items %}
+      <div x-data="{ open: false }">
+        <h3 class="text-lg">
+          <button type="button" class="flex w-full items-center justify-between gap-4 py-5 text-left font-display font-bold text-brand-dark" @click="open = !open" :aria-expanded="open">
+            {{ item.question }} <span class="transition" :class="open ? 'rotate-180' : ''">{% icon "chevron-down" "h-5 w-5" %}</span>
+          </button>
+        </h3>
+        <div x-show="open" x-collapse x-cloak class="prose-site pb-6">{{ item.answer|richtext }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>

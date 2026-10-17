@@ -1,0 +1,21 @@
+{% load site_tags %}
+{% if items %}
+<section class="section {{ section_class }}" id="{{ anchor|default:'resources' }}" aria-labelledby="{{ anchor|default:'resources' }}-h">
+  <div class="container-site">
+    <h2 id="{{ anchor|default:'resources' }}-h" class="h-section">{{ heading|default:"Resources" }}</h2>
+    <ul class="mt-6 divide-y divide-line border-y border-line">
+      {% for r in items %}
+        <li class="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:gap-6">
+          <span class="w-32 shrink-0 text-sm font-semibold text-muted">{{ r.date|date:"M j, Y" }}</span>
+          <a href="{{ r.href }}" class="flex-1 font-semibold text-brand-dark no-underline hover:text-brand" {% if r.is_external %}target="_blank" rel="noopener"{% endif %}>
+            {{ r.title }}{% if r.number %} #{{ r.number }}{% endif %}
+          </a>
+          <span class="inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-brand">
+            {% if r.is_external %}{% icon "external-link" "h-4 w-4" %} Link{% else %}{% icon "download" "h-4 w-4" %} {% if r.kind %}{{ r.get_kind_display }}{% else %}PDF{% endif %}{% endif %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}

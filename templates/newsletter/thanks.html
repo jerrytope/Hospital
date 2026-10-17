@@ -1,0 +1,8 @@
+{% load site_tags %}
+<div class="flex items-start gap-4 rounded-lg bg-white p-6 shadow-card" role="status">
+  <span class="rounded-full bg-ok/10 p-2 text-ok">{% icon "check" "h-6 w-6" %}</span>
+  <div>
+    <p class="font-display text-lg font-extrabold text-brand-dark">Thank you{% if subscriber.first_name %}, {{ subscriber.first_name }}{% endif %}!</p>
+    <p class="text-muted">You're on the list. Watch your inbox for field updates and stories of hope.</p>
+  </div>
+</div>

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags site_tags %}
+{% block content %}
+{% include "includes/hero.html" with eyebrow=page.eyebrow|default:"Our Work" %}
+
+{% if page.intro %}<section class="section pb-6"><div class="container-site"><div class="prose-site max-w-3xl">{{ page.intro|richtext }}</div></div></section>{% endif %}
+
+{% if page.icon_stats %}
+<section class="container-site py-8">
+  <div class="grid gap-6 md:grid-cols-3">
+    {% for stat in page.icon_stats %}
+      <div class="flex flex-col items-start gap-3 rounded-lg bg-brand-mist p-6">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-white {% cycle 'text-accent' 'text-brand' 'text-ok' %}">{% icon stat.value.icon "h-7 w-7" %}</span>
+        {% if stat.value.value %}<p class="font-display text-3xl font-extrabold text-brand-dark">{{ stat.value.value }}</p>{% endif %}
+        <p class="text-ink">{{ stat.value.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if page.achievements %}
+<section class="section">
+  <div class="container-site">
+    <h2 class="h-section">{{ page.achievements_heading }}</h2>
+    <ul class="mt-6 grid gap-4 md:grid-cols-2">
+      {% for item in page.achievements %}<li class="flex gap-3"><span class="mt-1 text-ok">{% icon "check" "h-5 w-5" %}</span><span>{{ item.value }}</span></li>{% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% with areas=page.focus_areas.all %}
+{% if areas %}
+<section class="section bg-brand-mist" x-data="{ tab: 0 }" aria-labelledby="focus-h">
+  <div class="container-site">
+    <h2 id="focus-h" class="h-section">{{ page.focus_heading }}</h2>
+    <div class="mt-6 flex gap-2 overflow-x-auto border-b border-line" role="tablist">
+      {% for a in areas %}
+        <button type="button" role="tab" :aria-selected="tab === {{ forloop.counter0 }}" @click="tab = {{ forloop.counter0 }}" aria-controls="focus-{{ forloop.counter0 }}" id="focus-tab-{{ forloop.counter0 }}"
+                class="-mb-px shrink-0 border-b-4 px-4 py-3 font-display text-sm font-bold uppercase tracking-wider"
+                :class="tab === {{ forloop.counter0 }} ? 'border-accent text-brand-dark' : 'border-transparent text-muted hover:text-brand-dark'">{{ a.title }}</button>
+      {% endfor %}
+    </div>
+    {% for a in areas %}
+      <div id="focus-{{ forloop.counter0 }}" role="tabpanel" aria-labelledby="focus-tab-{{ forloop.counter0 }}" x-show="tab === {{ forloop.counter0 }}" {% if not forloop.first %}x-cloak{% endif %} class="grid gap-8 py-8 lg:grid-cols-5">
+        <div class="lg:col-span-3">
+          <h3 class="text-sm uppercase tracking-widest text-muted">Overview</h3>
+          <div class="prose-site mt-2">{{ a.overview|richtext }}</div>
+          {% if a.read_more_page %}<a href="{% pageurl a.read_more_page %}" class="btn-primary mt-6">Read more</a>{% endif %}
+        </div>
+        {% if a.key_stats %}
+          <div class="space-y-4 lg:col-span-2">
+            <h3 class="text-sm uppercase tracking-widest text-muted">Key stats</h3>
+            {% for s in a.key_stats %}
+              <div class="flex items-start gap-4 rounded-lg bg-white p-4">
+                <span class="text-brand">{% icon s.value.icon "h-8 w-8" %}</span>
+                <div>{% if s.value.value %}<p class="font-display text-2xl font-extrabold text-brand-dark">{{ s.value.value }}</p>{% endif %}<p class="text-muted">{{ s.value.text }}</p></div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{% if page.featured_resources %}
+<section class="section">
+  <div class="container-site">
+    <h2 class="h-section">Featured resources</h2>
+    <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {% for r in page.featured_resources %}
+        <article class="card">
+          {% if r.value.image %}{% image r.value.image fill-640x360 class="card-img" loading="lazy" %}{% endif %}
+          <div class="card-body">
+            {% if r.value.label %}<p class="card-label">{{ r.value.label }}</p>{% endif %}
+            <h3 class="card-title">{{ r.value.title }}</h3>
+            {% if r.value.text %}<p class="text-muted">{{ r.value.text }}</p>{% endif %}
+            <a href="{% if r.value.document %}{{ r.value.document.url }}{% else %}{{ r.value.url }}{% endif %}" class="link-arrow mt-auto pt-2" {% if not r.value.document %}target="_blank" rel="noopener"{% endif %}>{% if r.value.document %}Download{% else %}View{% endif %} {% icon "arrow-right" "h-4 w-4" %}</a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if page.featured_story %}
+{% with s=page.featured_story %}
+<section class="relative isolate overflow-hidden bg-brand-dark">
+  {% if s.hero_image %}{% image s.hero_image fill-1600x600 format-webp class="absolute inset-0 -z-10 h-full w-full object-cover opacity-40" loading="lazy" %}{% endif %}
+  <div class="container-site py-16 md:py-24">
+    <p class="eyebrow text-brand-light">Featured story</p>
+    <h2 class="mt-2 max-w-3xl text-3xl text-white md:text-4xl">{{ s.title }}</h2>
+    {% if s.excerpt %}<p class="mt-4 max-w-2xl text-lg text-white/85">{{ s.excerpt }}</p>{% endif %}
+    <a href="{% pageurl s %}" class="btn-ghost-white mt-6">Read the story</a>
+  </div>
+</section>
+{% endwith %}
+{% endif %}
+
+{% stories_url program=page.slug as explore %}
+{% with heading="Read more on "|add:page.title %}{% include "includes/related_stories.html" with stories=related_stories explore_url=explore %}{% endwith %}
+{% include "includes/resource_list.html" with items=resources section_class="bg-brand-mist" %}
+{% for block in page.body %}{% include_block block %}{% endfor %}
+{% include "includes/donate_box.html" with heading=page.donate_heading appeal=page.appeal_code|default:"PROGRAM" %}
+{% endblock %}

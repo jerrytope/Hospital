@@ -1,0 +1,11 @@
+Hello {{ fundraiser.owner.first_name|default:"there" }},
+
+{% if fundraiser.status == "live" %}Your fundraiser "{{ fundraiser.title }}" is now live: {{ SITE_URL }}{{ fundraiser.get_absolute_url }}
+{% elif fundraiser.status == "changes" %}Our team has asked for changes to "{{ fundraiser.title }}":
+
+{{ fundraiser.staff_note }}
+
+Edit it here: {{ SITE_URL }}/account/fundraisers/
+{% elif fundraiser.status == "hidden" %}Your fundraiser "{{ fundraiser.title }}" has been hidden by our team. {{ fundraiser.staff_note }}
+{% endif %}
+Thank you for fundraising with us.

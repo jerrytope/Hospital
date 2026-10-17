@@ -1,0 +1,11 @@
+{% load wagtailimages_tags site_tags %}
+<section class="relative isolate my-10 overflow-hidden bg-brand">
+  {% if value.image %}{% image value.image fill-1600x500 format-webp class="absolute inset-0 -z-10 h-full w-full object-cover opacity-25" loading="lazy" %}{% endif %}
+  <div class="container-site flex flex-col items-start gap-6 py-12 md:flex-row md:items-center md:justify-between">
+    <div class="max-w-2xl text-white">
+      <h2 class="text-3xl text-white">{{ value.heading }}</h2>
+      {% if value.text %}<p class="mt-2 text-lg text-white/90">{{ value.text }}</p>{% endif %}
+    </div>
+    <a href="{{ value.link|href }}" class="btn-ghost-white shrink-0">{{ value.link|linktext }}</a>
+  </div>
+</section>

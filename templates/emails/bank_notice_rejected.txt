@@ -1,0 +1,7 @@
+Dear {{ notice.first_name }},
+
+We could not match the bank transfer you told us about ({{ notice.display_amount }}, reference {{ notice.reference }}).
+{% if notice.rejection_reason %}
+Reason: {{ notice.rejection_reason }}
+{% endif %}
+If you believe this is a mistake, please reply to this email{% if org.donations_email %} or write to {{ org.donations_email }}{% endif %}.
