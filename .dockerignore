@@ -1,0 +1,17 @@
+.git
+.venv
+node_modules
+__pycache__
+*.pyc
+.env
+admin-credentials.txt
+.first-run-done
+db.sqlite3
+media
+test-media
+sent-emails
+staticfiles
+.verify
+.pytest_cache
+debug.log
+*.pdf
