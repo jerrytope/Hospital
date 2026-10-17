@@ -1,4 +1,4 @@
-{% extends "wagtailadmin/skeleton.html" %}
+{% extends "wagtailadmin/admin_base.html" %}
 {% load wagtailadmin_tags %}
 {% block titletag %}Set up two-factor authentication{% endblock %}
 {% block bodyclass %}login{% endblock %}
@@ -13,14 +13,10 @@
   </ol>
   <div style="background:#fff;display:inline-block;padding:12px;border-radius:8px;margin:1rem 0">{{ qr_svg|safe }}</div>
   <p>Key: <code style="user-select:all;word-break:break-all">{{ secret }}</code></p>
-  <form method="post" novalidate>
+  <form class="login-form" method="post" novalidate>
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.GET.next }}">
-    <div class="w-field__wrapper">
-      <label class="w-field__label" for="id_token">6-digit code</label>
-      {{ form.token }}
-      {% for e in form.token.errors %}<p class="error-message">{{ e }}</p>{% endfor %}
-    </div>
+    {% formattedfield form.token %}
     <button type="submit" class="button button-longrunning">Turn on two-factor authentication</button>
   </form>
   <p style="margin-top:1rem"><a href="{% url 'wagtailadmin_logout' %}">Sign out</a></p>

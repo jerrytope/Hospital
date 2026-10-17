@@ -1,18 +1,15 @@
-{% extends "wagtailadmin/skeleton.html" %}
+{% extends "wagtailadmin/admin_base.html" %}
+{% load wagtailadmin_tags %}
 {% block titletag %}Enter your security code{% endblock %}
 {% block bodyclass %}login{% endblock %}
 {% block furniture %}
 <main class="content-wrapper" id="main">
   <h1>Enter your security code</h1>
   <p>Open your authenticator app and enter the current 6-digit code for this site.</p>
-  <form method="post" novalidate>
+  <form class="login-form" method="post" novalidate>
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.GET.next }}">
-    <div class="w-field__wrapper">
-      <label class="w-field__label" for="id_token">6-digit code</label>
-      {{ form.token }}
-      {% for e in form.token.errors %}<p class="error-message">{{ e }}</p>{% endfor %}
-    </div>
+    {% formattedfield form.token %}
     <button type="submit" class="button">Verify</button>
   </form>
   <p style="margin-top:1rem">Lost your phone? Ask another Super Admin to reset your two-factor device, or run <code>python manage.py reset_2fa your@email</code> on the server.</p>
